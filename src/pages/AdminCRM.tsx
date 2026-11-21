@@ -1,4 +1,5 @@
 import CRMSidebar from '../components/CRMSidebar';
+import { apiUrl, mediaUrl } from '../lib/apiBase';
 import ProductEditor from './ProductEditor';
 import '../styles/crm-premium.css';
 import '../styles/crm-2026-refined.css';
@@ -6,7 +7,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { LayoutDashboard, Package, Layers, Tags, Shapes, ShoppingCart, Users, RotateCcw, Star, TicketPercent, Boxes, Truck, Wrench, Headphones, ShieldCheck, BarChart3, LogOut, Search, Plus, Pencil, X, RefreshCw, AlertTriangle, Trash2, Menu, PanelLeftClose, PanelLeftOpen, ChevronRight, ShieldAlert, XCircle, CheckCircle2, Eye, EyeOff, ArrowUpRight, TrendingUp, Clock3, Activity, SlidersHorizontal, ChevronDown, Download } from 'lucide-react';
 
-const ROOT='/api/crm/';
+const ROOT=apiUrl('/api/crm/');
 const icons: Record<string,typeof Package>={dashboard:LayoutDashboard,products:Package,variants:Layers,categories:Shapes,brands:Tags,orders:ShoppingCart,customers:Users,returns:RotateCcw,reviews:Star,coupons:TicketPercent,inventory:Boxes,repairs:Wrench,support:Headphones,warranties:ShieldCheck,reports:BarChart3};
 const sectionGroups=[{label:'Overview',items:['dashboard','reports']},{label:'Catalog',items:['categories','brands','products','inventory']},{label:'Sales',items:['orders','customers','returns','coupons']},{label:'Engagement',items:['reviews','repairs','support','warranties']}];
 const sections=[['dashboard','Overview'],['categories','Categories'],['brands','Brands'],['products','Products'],['inventory','Inventory ledger'],['orders','Orders'],['customers','Customers'],['returns','Returns'],['reviews','Reviews'],['coupons','Coupons'],['repairs','Repairs'],['support','Support tickets'],['warranties','Warranties'],['reports','Reports']];
@@ -30,7 +31,7 @@ const statusTone: Record<string,string>={delivered:'success',completed:'success'
 const money=(v:unknown)=>`AED ${Number(v||0).toLocaleString('en-AE',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 function display(v:unknown,key='') {
  if(v===null||v===undefined||v==='')return '—';
- if(key==='image_url'&&typeof v==='string')return <img src={v} loading="lazy" alt="Product" className="crm-product-thumb"/>;
+ if(key==='image_url'&&typeof v==='string')return <img src={mediaUrl(v)} loading="lazy" alt="Product" className="crm-product-thumb"/>;
  if(typeof v==='boolean')return <span className={`crm-status ${v?'crm-status--success':'crm-status--neutral'}`}><span className="crm-status-dot"/>{v?'Active':'Inactive'}</span>;
  if(key==='status'||key==='payment_status')return <span className={`crm-status crm-status--${statusTone[String(v).toLowerCase()]||'neutral'}`}><span className="crm-status-dot"/>{String(v).replaceAll('_',' ')}</span>;
  if(['total','total_spent','price','refund_amount','revenue_paid','subtotal','vat_amount','delivery_charge'].includes(key))return <span className="crm-money">{money(v)}</span>;

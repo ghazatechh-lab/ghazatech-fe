@@ -1,5 +1,6 @@
+import { apiUrl } from './apiBase';
 export type Customer = {id:number; email:string; first_name:string; last_name:string; full_name:string; mobile_number:string};
-const ROOT='/api/accounts/';
+const ROOT=apiUrl('/api/accounts/');
 const TOKEN_KEY='ghazatech_customer_token';
 export function getCustomerToken(){return localStorage.getItem(TOKEN_KEY) || '';}
 export function saveCustomerToken(token:string){localStorage.setItem(TOKEN_KEY,token);window.dispatchEvent(new Event('ghaza-auth-changed'));}

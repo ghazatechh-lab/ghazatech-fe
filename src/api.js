@@ -1,3 +1,4 @@
-export const BASE=(import.meta.env.VITE_API_BASE || '/api').replace(/\/$/,'');
+const origin = (import.meta.env.VITE_API_BASE_URL || '').trim().replace(/\/+$/, '') || (import.meta.env.DEV ? '' : 'https://api.ghazatech.com');
+export const BASE=`${origin}/api`;
 export async function api(path,{method='GET',body,token,form=false}={}){ const headers={}; if(!form&&body!==undefined)headers['Content-Type']='application/json'; if(token)headers.Authorization=`Token ${token}`; let r;try{r=await fetch(`${BASE}${path}`,{method,headers,body:body===undefined?undefined:(form?body:JSON.stringify(body))});}catch(e){throw Error('Cannot connect to the API. Start Django on port 8000.')}let data=await r.json().catch(()=>({}));if(!r.ok){const error=data.detail || Object.entries(data).map(([key,val])=>`${key}: ${Array.isArray(val)?val.join(', '):String(val)}`).join(' • ');throw Error(error||`Request failed (${r.status})`)}return data}
 export const money=(v)=>`AED ${Number(v||0).toFixed(2)}`;

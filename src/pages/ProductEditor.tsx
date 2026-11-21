@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
+import { apiUrl, mediaUrl } from '../lib/apiBase';
 import { Plus, X, Package, Layers, ImagePlus, CheckCircle2 } from 'lucide-react';
 
 type RecordValue=Record<string,any>;
@@ -14,8 +15,8 @@ export default function ProductEditor({product,token,onClose,onSaved}:{product:R
  const [variants,setVariants]=useState<Variant[]>(()=>Array.isArray(product.variants)?product.variants.map((v:RecordValue)=>({...v,price:String(v.price),stock:String(v.stock),attributes:v.attributes||{}})):[]);
  const [hasVariants,setHasVariants]=useState(()=>Boolean(product.variant_count||product.variants?.length));
  const [busy,setBusy]=useState(false);const [error,setError]=useState('');
- const [preview,setPreview]=useState<string>(String(product.image_url||''));
- useEffect(()=>{const headers={Authorization:`Token ${token}`};Promise.all(['categories','brands'].map(async name=>{const r=await fetch(`/api/crm/${name}/`,{headers});if(!r.ok)throw Error(`Unable to load ${name}`);const data=await r.json();return Array.isArray(data)?data:data.results||[]})).then(([c,b])=>{setCategories(c);setBrands(b)}).catch(e=>setError(String(e)))},[token]);
+ const [preview,setPreview]=useState<string>(mediaUrl(String(product.image_url||'')));
+ useEffect(()=>{const headers={Authorization:`Token ${token}`};Promise.all(['categories','brands'].map(async name=>{const r=await fetch(apiUrl(`/api/crm/${name}/`),{headers});if(!r.ok)throw Error(`Unable to load ${name}`);const data=await r.json();return Array.isArray(data)?data:data.results||[]})).then(([c,b])=>{setCategories(c);setBrands(b)}).catch(e=>setError(String(e)))},[token]);
  const change=(i:number,key:keyof Variant,value:any)=>setVariants(v=>v.map((item,j)=>i===j?{...item,[key]:value}:item));
  const submit=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();setError('');setBusy(true);
@@ -31,7 +32,7 @@ export default function ProductEditor({product,token,onClose,onSaved}:{product:R
     form.set('variant_items',JSON.stringify(variants.map(v=>({...v,stock:Number(v.stock),price:v.price,attributes:v.attributes||{}}))));
    }
    // When the switch is off, omit variant_items; existing variants are never deleted implicitly.
-   const response=await fetch(`/api/crm/products/${edit?`${product.id}/`:''}`,{method:edit?'PATCH':'POST',headers:{Authorization:`Token ${token}`},body:form});
+   const response=await fetch(apiUrl(`/api/crm/products/${edit?`${product.id}/`:''}`),{method:edit?'PATCH':'POST',headers:{Authorization:`Token ${token}`},body:form});
    if(!response.ok){const message=await response.json().catch(()=>({detail:'Save failed'}));throw Error(message.detail||JSON.stringify(message))}
    await onSaved();onClose();
   }catch(err){setError(String(err))}finally{setBusy(false)}
