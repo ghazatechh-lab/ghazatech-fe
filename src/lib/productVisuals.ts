@@ -1,18 +1,19 @@
 import type { Product } from './types';
 
 export const CATEGORY_VISUALS: Record<string, string> = {
-  Battery: '/images/battery-product.webp',
+  Battery: '/images/cat-dock-batteries.webp',
   Bezel: '/images/screen-product.webp',
-  Charger: '/images/charger-product.webp',
-  Fan: '/images/fan-product.webp',
-  Hinges: '/images/hinges-product.webp',
-  Keyboard: '/images/keyboard-product.webp',
-  Motherboard: '/images/motherboard-product.webp',
+  Charger: '/images/cat-dock-chargers.webp',
+  Fan: '/images/cat-dock-cooling.webp',
+  Hinges: '/images/cat-dock-hinges.webp',
+  Keyboard: '/images/cat-dock-keyboards.webp',
+  Motherboard: '/images/cat-dock-motherboards.webp',
   Palmrest: '/images/palmrest-product.webp',
-  Ram: '/images/motherboard-product.webp',
-  SSD: '/images/battery-product.webp',
-  Screen: '/images/screen-product.webp',
-  Topcover: '/images/screen-product.webp',
+  Ram: '/images/cat-dock-ssd-ram.webp',
+  SSD: '/images/cat-dock-ssd-ram.webp',
+  Screen: '/images/cat-dock-screens.webp',
+  Topcover: '/images/palmrest-product.webp',
+  'Top cover': '/images/palmrest-product.webp',
   'Wifi Module': '/images/motherboard-product.webp',
 };
 

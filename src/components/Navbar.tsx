@@ -9,129 +9,286 @@ import {
   FileText,
   ShieldCheck,
   Truck,
+  RotateCcw,
+  Sparkles,
+  Phone,
+  MapPin,
   X,
   UserRound,
+  Heart,
+  Send,
+  Home as HomeIcon,
+  Headphones,
 } from 'lucide-react';
 import { useCart } from '../lib/cart';
-import {getCustomerToken} from '../lib/auth';
+import { getCustomerToken } from '../lib/auth';
 
 const NAV_LINKS = [
-  { to: '/', label: 'Home' },
+  { to: '/', label: 'Home', icon: HomeIcon },
   { to: '/shop', label: 'Shop', dropdown: true },
   { to: '/warranty', label: 'Warranty', icon: ShieldCheck },
   { to: '/repair', label: 'Repair', icon: Wrench },
   { to: '/track', label: 'Track Repair', icon: FileText },
-  { to: '/support', label: 'Support' },
+  { to: '/support', label: 'Support', icon: Headphones },
+  { to: '/about', label: 'About Us' },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const [query, setQuery] = useState('');
+  const [wishlistCount] = useState(0);
   const { count } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => setOpen(false), [location.pathname]);
+
   useEffect(() => {
     if (!open) return;
-    const previous = document.body.style.overflow;
+    const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setOpen(false); };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
     window.addEventListener('keydown', onKey);
-    return () => { document.body.style.overflow = previous; window.removeEventListener('keydown', onKey); };
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      window.removeEventListener('keydown', onKey);
+    };
   }, [open]);
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const submitSearch = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const submitSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const value = query.trim();
     navigate(value ? `/shop?q=${encodeURIComponent(value)}` : '/shop');
     setOpen(false);
   };
 
+  const isAuth = Boolean(getCustomerToken());
+
   return (
-    <header className={`gt-top-nav sticky top-0 z-50 transition-shadow duration-300 ${scrolled ? 'shadow-xl shadow-slate-900/10' : ''}`}>
-      <div className="bg-[#072d62] text-white">
-        <div className="container-x flex min-h-9 items-center justify-between gap-5 text-[11px] font-semibold sm:text-xs">
-          <div className="hidden items-center gap-2 sm:flex"><Truck className="h-4 w-4" /> Free UAE Delivery Over AED 250</div>
-          <div className="hidden items-center gap-2 md:flex"><ShieldCheck className="h-4 w-4" /> Genuine &amp; Tested Parts</div>
-          <div className="hidden items-center gap-2 lg:flex">↻ Easy Returns</div>
-          <a href="tel:+971563840130" className="ml-auto hover:text-brand-200">+971 56 384 0130</a>
-          <span className="hidden sm:inline text-blue-200">Dubai, UAE</span>
+    <header className="sticky top-0 z-50 w-full shadow-md">
+      {/* TIER 1: Top Utility Strip (#051329) */}
+      <div className="border-b border-[#162744] bg-[#051329] text-[#CAD5E3]">
+        <div className="container-x flex h-8 items-center justify-between gap-4 text-[11px] font-medium">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <span className="flex items-center gap-1.5 hover:text-white transition-colors">
+              <Truck className="h-3.5 w-3.5 text-[#2B85FF]" />
+              <span>Free UAE Delivery Over AED 250</span>
+            </span>
+            <span className="hidden items-center gap-1.5 md:flex hover:text-white transition-colors">
+              <ShieldCheck className="h-3.5 w-3.5 text-[#2B85FF]" />
+              <span>Genuine &amp; Tested Parts</span>
+            </span>
+            <span className="hidden items-center gap-1.5 lg:flex hover:text-white transition-colors">
+              <RotateCcw className="h-3.5 w-3.5 text-[#2B85FF]" />
+              <span>Easy Returns (7 Days)</span>
+            </span>
+            <span className="hidden items-center gap-1.5 xl:flex hover:text-white transition-colors">
+              <Sparkles className="h-3.5 w-3.5 text-[#2B85FF]" />
+              <span>Warranty Support</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-4 sm:gap-6 font-mono text-[11px]">
+            <div className="flex items-center gap-1 text-[#CAD5E3] hover:text-white cursor-pointer">
+              <span className="text-sm">🇦🇪</span>
+              <span className="font-semibold text-xs font-sans">UAE</span>
+              <ChevronDown className="h-3 w-3 text-slate-400" />
+            </div>
+            <a href="tel:+971563840130" className="flex items-center gap-1.5 text-white hover:text-[#2B85FF] transition-colors">
+              <Phone className="h-3 w-3 text-[#2B85FF]" />
+              <span className="font-mono text-[11px]">+971 56 384 0130</span>
+            </a>
+            <span className="hidden sm:flex items-center gap-1 text-[#8A9EB5]">
+              <MapPin className="h-3 w-3 text-[#2B85FF]" />
+              <span>Dubai, UAE</span>
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="border-b border-slate-100 bg-white/95">
-        <div className="container-x flex min-h-[72px] items-center gap-4">
-          <Link to="/" className="flex shrink-0 items-center gap-2.5">
-            <img src="/images/ghaza-logo.png" alt="Ghaza Computer TR.LLC" className="h-11 w-11 rounded-xl object-cover shadow-sm" />
-            <span className="hidden leading-none sm:flex sm:flex-col">
-              <span className="font-display text-base font-bold tracking-tight text-[#0b2b57]">GHAZA COMPUTER TR.LLC</span>
-              <span className="mt-1 text-[9px] font-bold uppercase tracking-[0.28em] text-brand-600">Laptop Parts</span>
-            </span>
+      {/* TIER 2: Main Header (#071936) */}
+      <div className="border-b border-[#1A2B49] bg-[#071936] py-3 text-white">
+        <div className="container-x flex items-center justify-between gap-4 lg:gap-8">
+          {/* Logo Mark */}
+          <Link to="/" className="flex shrink-0 items-center gap-3 group">
+            <div className="flex h-10 w-10 items-center justify-center rounded-[3px] bg-[#0B63F6] font-display text-lg font-black tracking-tighter text-white shadow-sm transition-transform duration-200 group-hover:scale-105">
+              GC
+            </div>
+            <div className="flex flex-col leading-tight">
+              <span className="font-display text-sm sm:text-base font-extrabold tracking-tight text-white group-hover:text-[#2B85FF] transition-colors">
+                GHAZA COMPUTER TR LLC
+              </span>
+              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#2B85FF]">
+                Laptop Parts
+              </span>
+            </div>
           </Link>
 
-          <form onSubmit={submitSearch} className="relative hidden min-w-0 flex-1 md:flex">
-            <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search by model, part number, SKU or product..."
-              className="h-11 w-full rounded-l-xl border border-slate-200 bg-slate-50 pl-11 pr-4 text-sm text-slate-800 outline-none transition focus:border-brand-500 focus:bg-white focus:ring-2 focus:ring-brand-100"
-            />
-            <button type="submit" className="flex h-11 w-14 items-center justify-center rounded-r-xl bg-brand-600 text-white transition hover:bg-brand-700" aria-label="Search">
-              <Search className="h-5 w-5" />
-            </button>
+          {/* Wide Central Search Bar */}
+          <form onSubmit={submitSearch} className="relative hidden max-w-2xl flex-1 md:flex">
+            <div className="relative flex w-full items-center">
+              <Search className="absolute left-3.5 h-4 w-4 text-[#8A9EB5] pointer-events-none" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by model, part number, FRU or SKU..."
+                className="h-10 w-full rounded-l-[3px] border border-[#1A2B49] bg-[#051329] pl-10 pr-4 text-xs font-medium text-white placeholder-[#8A9EB5] outline-none transition focus:border-[#0B63F6] focus:bg-[#091F40]"
+              />
+              <button
+                type="submit"
+                aria-label="Search catalog"
+                className="flex h-10 w-12 shrink-0 items-center justify-center rounded-r-[3px] bg-[#0B63F6] text-white transition-colors hover:bg-[#0953d4] active:scale-[0.98]"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+            </div>
           </form>
 
-          <div className="ml-auto flex items-center gap-4 text-[#0b2b57] sm:gap-5">
-            <Link to={getCustomerToken()?'/account':'/login'} className="flex items-center gap-2 text-sm font-semibold" aria-label="Customer account"><UserRound className="h-6 w-6"/><span className="hidden lg:inline">{getCustomerToken()?'My Account':'Login / Sign up'}</span></Link>
-
-
-            <Link to="/cart" className="gt-animated-count relative flex items-center gap-2 text-sm font-semibold">
-              <ShoppingCart className="h-6 w-6" />
-              <span className="hidden lg:inline">Cart</span>
-              <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white">{count}</span>
+          {/* Right Action Icons */}
+          <div className="flex items-center gap-4 sm:gap-6">
+            <Link
+              to={isAuth ? '/account' : '/login'}
+              className="flex items-center gap-2 text-xs font-semibold text-white hover:text-[#2B85FF] transition-colors"
+            >
+              <UserRound className="h-5 w-5 text-[#2B85FF]" />
+              <span className="hidden lg:inline">{isAuth ? 'My Account' : 'Login / Sign up'}</span>
             </Link>
-            <button onClick={() => setOpen((value) => !value)} className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 lg:hidden" aria-label="Toggle menu" aria-expanded={open} aria-controls="mobile-shop-navigation">
+
+            <Link
+              to="/shop"
+              className="relative hidden items-center gap-1.5 text-xs font-semibold text-white hover:text-[#2B85FF] transition-colors sm:flex"
+              title="Wishlist"
+            >
+              <Heart className="h-5 w-5 text-[#8A9EB5] hover:text-[#2B85FF] transition-colors" />
+              <span className="hidden xl:inline">Wishlist</span>
+              {wishlistCount > 0 && (
+                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#0B63F6] font-mono text-[9px] font-bold text-white">
+                  {wishlistCount}
+                </span>
+              )}
+            </Link>
+
+            <Link
+              to="/cart"
+              className="relative flex items-center gap-2 text-xs font-semibold text-white hover:text-[#2B85FF] transition-colors"
+            >
+              <div className="relative">
+                <ShoppingCart className="h-5 w-5 text-[#2B85FF]" />
+                <span className="absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-[2px] bg-[#0B63F6] px-1 font-mono text-[10px] font-bold text-white shadow">
+                  {count}
+                </span>
+              </div>
+              <span className="hidden sm:inline">Cart</span>
+            </Link>
+
+            <button
+              onClick={() => setOpen((v) => !v)}
+              className="flex h-9 w-9 items-center justify-center rounded-[3px] border border-[#1A2B49] bg-[#051329] text-white lg:hidden"
+              aria-label="Toggle navigation menu"
+              aria-expanded={open}
+            >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
+      </div>
 
-        <div className="container-x hidden items-center gap-7 pb-3 lg:flex">
-          <Link to="/shop" className="flex h-10 items-center gap-2 rounded-xl bg-brand-600 px-5 text-sm font-bold text-white shadow-sm transition hover:bg-brand-700"><Menu className="h-4 w-4" /> All Categories</Link>
-          {NAV_LINKS.map((link) => {
-            const active = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
-            const Icon = link.icon;
-            return (
-              <Link key={`${link.label}-${link.to}`} to={link.to} className={`group relative flex items-center gap-1.5 py-2 text-sm font-semibold transition ${active ? 'text-brand-700' : 'text-slate-700 hover:text-brand-700'}`}>
-                {Icon && <Icon className="h-4 w-4" />}
-                {link.label}
-                {link.dropdown && <ChevronDown className="h-3.5 w-3.5 transition group-hover:rotate-180" />}
-                <span className={`absolute -bottom-1 left-0 h-0.5 rounded-full bg-brand-600 transition-all ${active ? 'w-full' : 'w-0 group-hover:w-full'}`} />
-              </Link>
-            );
-          })}
+      {/* TIER 3: Sub-Navigation Bar (#071936 / #051329) */}
+      <div className="hidden border-b border-[#1A2B49] bg-[#051329] lg:block">
+        <div className="container-x flex h-11 items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
+            {/* All Categories Dropdown Button */}
+            <Link
+              to="/shop"
+              className="flex h-8 items-center gap-2 rounded-[3px] bg-[#0B63F6] px-3.5 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-[#0953d4]"
+            >
+              <Menu className="h-3.5 w-3.5" />
+              <span>All Categories</span>
+              <ChevronDown className="h-3 w-3" />
+            </Link>
+
+            {/* Navbar Navigation Links */}
+            <nav className="flex items-center gap-5" aria-label="Main navigation">
+              {NAV_LINKS.map((link) => {
+                const active = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
+                const Icon = link.icon;
+                return (
+                  <Link
+                    key={`${link.label}-${link.to}`}
+                    to={link.to}
+                    className={`relative flex items-center gap-1.5 py-3 text-xs font-semibold tracking-wide transition-colors ${
+                      active ? 'text-[#2B85FF]' : 'text-[#CAD5E3] hover:text-white'
+                    }`}
+                  >
+                    {Icon && <Icon className={`h-3.5 w-3.5 ${active ? 'text-[#2B85FF]' : 'text-[#8A9EB5]'}`} />}
+                    <span>{link.label}</span>
+                    {link.dropdown && <ChevronDown className="h-3 w-3 text-slate-400" />}
+                    {active && (
+                      <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#0B63F6]" />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
+          </div>
+
+          {/* Right Action Button: Request a Part */}
+          <Link
+            to="/repair"
+            className="flex h-8 items-center gap-1.5 rounded-[3px] border border-[#2B85FF]/50 bg-[#0B63F6]/10 px-3.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:border-[#2B85FF] hover:bg-[#0B63F6] hover:text-white"
+          >
+            <Send className="h-3 w-3 text-[#2B85FF]" />
+            <span>Request a Part</span>
+          </Link>
         </div>
       </div>
 
+      {/* Mobile Drawer */}
       {open && (
-        <div id="mobile-shop-navigation" className="animate-slide-down border-t border-slate-100 bg-white lg:hidden" role="navigation" aria-label="Mobile navigation">
-          <div className="container-x py-4">
-            <form onSubmit={submitSearch} className="relative mb-3 flex md:hidden">
+        <div className="border-b border-[#1A2B49] bg-[#071936] text-white lg:hidden">
+          <div className="container-x space-y-3 py-4">
+            <form onSubmit={submitSearch} className="relative flex">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search products..." className="input pl-10" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search parts, model, FRU..."
+                className="h-10 w-full rounded-[3px] border border-[#1A2B49] bg-[#051329] pl-10 pr-3 text-xs text-white outline-none focus:border-[#0B63F6]"
+              />
             </form>
-            {NAV_LINKS.map((link) => <Link key={`${link.label}-${link.to}`} to={link.to} className="block rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 hover:bg-brand-50 hover:text-brand-700">{link.label}</Link>)}
-            <Link to="/login" className="block rounded-lg px-3 py-3 text-sm font-semibold text-blue-700">Customer Login</Link><Link to="/register" className="block rounded-lg px-3 py-3 text-sm font-semibold text-blue-700">Sign up</Link>
+            <Link
+              to="/shop"
+              className="flex items-center justify-between rounded-[3px] bg-[#0B63F6] px-3 py-2 text-xs font-bold uppercase tracking-wider text-white"
+            >
+              <span>All Categories</span>
+              <ChevronDown className="h-3.5 w-3.5" />
+            </Link>
+            <div className="divide-y divide-[#1A2B49]">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={`${link.label}-${link.to}`}
+                  to={link.to}
+                  className="flex items-center gap-2 py-2.5 text-xs font-semibold text-[#CAD5E3] hover:text-white"
+                >
+                  {link.icon && <link.icon className="h-4 w-4 text-[#2B85FF]" />}
+                  <span>{link.label}</span>
+                </Link>
+              ))}
+            </div>
+            <div className="flex gap-2 pt-2">
+              <Link
+                to={isAuth ? '/account' : '/login'}
+                className="flex-1 rounded-[3px] border border-[#1A2B49] bg-[#051329] py-2 text-center text-xs font-semibold text-white"
+              >
+                {isAuth ? 'My Account' : 'Customer Login'}
+              </Link>
+              <Link
+                to="/repair"
+                className="flex-1 rounded-[3px] bg-[#0B63F6] py-2 text-center text-xs font-bold uppercase tracking-wider text-white"
+              >
+                Request a Part
+              </Link>
+            </div>
           </div>
         </div>
       )}

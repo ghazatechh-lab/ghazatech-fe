@@ -10,7 +10,21 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  server: { watch: { usePolling: true, interval: 1000 }, proxy: { '/api': { target: 'http://127.0.0.1:8000', changeOrigin: true }, '/media': { target: 'http://127.0.0.1:8000', changeOrigin: true } } },
+  server: {
+    watch: { usePolling: true, interval: 1000 },
+    proxy: {
+      '/api': {
+        target: process.env.VITE_BACKEND_URL || 'https://api.ghazatech.com',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/media': {
+        target: process.env.VITE_BACKEND_URL || 'https://api.ghazatech.com',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
+  },
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
