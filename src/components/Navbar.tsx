@@ -1,35 +1,24 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
-  ChevronDown,
-  Menu,
-  Search,
-  ShoppingCart,
-  Wrench,
-  FileText,
-  ShieldCheck,
-  Truck,
-  RotateCcw,
-  Sparkles,
-  Phone,
-  MapPin,
-  X,
-  UserRound,
-  Send,
-  Home as HomeIcon,
-  Headphones,
+  FileText, Headphones, Home, MapPin, Menu, Phone, RotateCcw, Search,
+  Send, ShieldCheck, ShoppingCart, Truck, UserRound, Wrench, X,
+  ArrowRight, PackageSearch,
 } from 'lucide-react';
 import { useCart } from '../lib/cart';
 import { getCustomerToken } from '../lib/auth';
+import './Navbar.css';
 
-const NAV_LINKS = [
-  { to: '/', label: 'Home', icon: HomeIcon },
-  { to: '/shop', label: 'Shop', dropdown: true },
+type NavItem = { to: string; label: string; icon: typeof Home };
+
+const NAV_LINKS: NavItem[] = [
+  { to: '/', label: 'Home', icon: Home },
+  { to: '/shop', label: 'Shop', icon: PackageSearch },
   { to: '/warranty', label: 'Warranty', icon: ShieldCheck },
   { to: '/repair', label: 'Repair', icon: Wrench },
   { to: '/track', label: 'Track Repair', icon: FileText },
   { to: '/support', label: 'Support', icon: Headphones },
-  { to: '/about', label: 'About Us' },
+  { to: '/about', label: 'About Us', icon: MapPin },
 ];
 
 export default function Navbar() {
@@ -38,244 +27,144 @@ export default function Navbar() {
   const { count } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
+  const menuButton = useRef<HTMLButtonElement>(null);
+  const drawer = useRef<HTMLDivElement>(null);
+  const wasOpen = useRef(false);
+  const isAuth = Boolean(getCustomerToken());
 
-  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => { setOpen(false); }, [location.pathname, location.search]);
 
   useEffect(() => {
-    if (!open) return;
-    const prevOverflow = document.body.style.overflow;
+    if (!open) {
+      if (wasOpen.current) menuButton.current?.focus();
+      wasOpen.current = false;
+      return;
+    }
+    wasOpen.current = true;
+    const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    drawer.current?.querySelector<HTMLInputElement>('input')?.focus();
+    function onKey(event: KeyboardEvent) {
+      if (event.key === 'Escape') setOpen(false);
+      if (event.key !== 'Tab' || !drawer.current) return;
+      const focusables = Array.from(drawer.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled])'));
+      if (focusables.length === 0) return;
+      const first = focusables[0];
+      const last = focusables[focusables.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
     window.addEventListener('keydown', onKey);
     return () => {
-      document.body.style.overflow = prevOverflow;
+      document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', onKey);
     };
   }, [open]);
 
-  const submitSearch = (e: React.FormEvent<HTMLFormElement>) => {
+  // Close a mobile drawer that stays open when a user expands the viewport.
+  useEffect(() => {
+    const mql = window.matchMedia('(min-width: 1024px)');
+    const onResize = () => { if (mql.matches) setOpen(false); };
+    mql.addEventListener('change', onResize);
+    return () => mql.removeEventListener('change', onResize);
+  }, []);
+
+  const submitSearch = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const value = query.trim();
     navigate(value ? `/shop?q=${encodeURIComponent(value)}` : '/shop');
     setOpen(false);
   };
 
-  const isAuth = Boolean(getCustomerToken());
+  const isActive = (path: string) => path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
   return (
-    <header className="sticky top-0 z-50 w-full shadow-md">
-      {/* TIER 1: Top Utility Strip (#051329) */}
-      <div className="border-b border-[#162744] bg-[#051329] text-[#CAD5E3]">
-        <div className="container-x flex h-8 items-center justify-between gap-4 text-[11px] font-medium">
-          <div className="flex items-center gap-4 sm:gap-6">
-            <span className="flex items-center gap-1.5 hover:text-white transition-colors">
-              <Truck className="h-3.5 w-3.5 text-[#2B85FF]" />
-              <span>Free UAE Delivery Over AED 250</span>
-            </span>
-            <span className="hidden items-center gap-1.5 md:flex hover:text-white transition-colors">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#2B85FF]" />
-              <span>Genuine &amp; Tested Parts</span>
-            </span>
-            <span className="hidden items-center gap-1.5 lg:flex hover:text-white transition-colors">
-              <RotateCcw className="h-3.5 w-3.5 text-[#2B85FF]" />
-              <span>Easy Returns (7 Days)</span>
-            </span>
-            <span className="hidden items-center gap-1.5 xl:flex hover:text-white transition-colors">
-              <Sparkles className="h-3.5 w-3.5 text-[#2B85FF]" />
-              <span>Warranty Support</span>
-            </span>
+    <header className="ghz-site-header sticky top-0 z-50 w-full" role="banner">
+      <div className="ghz-utility-bar">
+        <div className="container-x ghz-utility-inner">
+          <div className="ghz-benefits" aria-label="Shopping information">
+            <span className="ghz-utility-item"><Truck aria-hidden="true" /> Free UAE Delivery Over AED 250</span>
+            <span className="ghz-utility-item ghz-benefit-secondary"><ShieldCheck aria-hidden="true" /> Genuine &amp; Tested Parts</span>
+            <span className="ghz-utility-item ghz-benefit-tertiary"><RotateCcw aria-hidden="true" /> Easy Returns (7 Days)</span>
           </div>
-
-          <div className="flex items-center gap-4 sm:gap-6 font-mono text-[11px]">
-            <div className="flex items-center gap-1 text-[#CAD5E3] hover:text-white cursor-pointer">
-              <span className="text-sm">🇦🇪</span>
-              <span className="font-semibold text-xs font-sans">UAE</span>
-              <ChevronDown className="h-3 w-3 text-slate-400" />
-            </div>
-            <a href="tel:+971563840130" className="flex items-center gap-1.5 text-white hover:text-[#2B85FF] transition-colors">
-              <Phone className="h-3 w-3 text-[#2B85FF]" />
-              <span className="font-mono text-[11px]">+971 56 384 0130</span>
-            </a>
-            <span className="hidden sm:flex items-center gap-1 text-[#8A9EB5]">
-              <MapPin className="h-3 w-3 text-[#2B85FF]" />
-              <span>Dubai, UAE</span>
-            </span>
+          <div className="ghz-utility-contact">
+            <span className="ghz-location"><MapPin aria-hidden="true" /> Dubai, UAE</span>
+            <a href="tel:+971563840130" className="ghz-phone"><Phone aria-hidden="true" /> +971 56 384 0130</a>
           </div>
         </div>
       </div>
 
-      {/* TIER 2: Main Header (#071936) */}
-      <div className="border-b border-[#1A2B49] bg-[#071936] py-3 text-white">
-        <div className="container-x flex items-center justify-between gap-4 lg:gap-8">
-          {/* Logo Mark */}
-          <Link to="/" className="flex shrink-0 items-center gap-3 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-[3px] bg-[#0B63F6] font-display text-lg font-black tracking-tighter text-white shadow-sm transition-transform duration-200 group-hover:scale-105">
-              GC
-            </div>
-            <div className="flex flex-col leading-tight">
-              <span className="font-display text-sm sm:text-base font-extrabold tracking-tight text-white group-hover:text-[#2B85FF] transition-colors">
-                GHAZA COMPUTER TR LLC
-              </span>
-              <span className="font-mono text-[10px] font-semibold uppercase tracking-[0.22em] text-[#2B85FF]">
-                Laptop Parts
-              </span>
-            </div>
+      <div className="ghz-primary-bar">
+        <div className="container-x ghz-primary-inner">
+          <Link to="/" className="ghz-brand" aria-label="Ghaza Computer home">
+            <span className="ghz-brand-mark" aria-hidden="true">GC</span>
+            <span className="ghz-brand-copy">
+              <strong>GHAZA COMPUTER TR LLC</strong>
+              <small>LAPTOP PARTS &amp; COMPONENTS</small>
+            </span>
           </Link>
 
-          {/* Wide Central Search Bar */}
-          <form onSubmit={submitSearch} className="relative hidden max-w-2xl flex-1 md:flex">
-            <div className="relative flex w-full items-center">
-              <Search className="absolute left-3.5 h-4 w-4 text-[#8A9EB5] pointer-events-none" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by model, part number, FRU or SKU..."
-                className="h-10 w-full rounded-l-[3px] border border-[#1A2B49] bg-[#051329] pl-10 pr-4 text-xs font-medium text-white placeholder-[#8A9EB5] outline-none transition focus:border-[#0B63F6] focus:bg-[#091F40]"
-              />
-              <button
-                type="submit"
-                aria-label="Search catalog"
-                className="flex h-10 w-12 shrink-0 items-center justify-center rounded-r-[3px] bg-[#0B63F6] text-white transition-colors hover:bg-[#0953d4] active:scale-[0.98]"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-            </div>
+          <form onSubmit={submitSearch} className="ghz-header-search" role="search" aria-label="Search the product catalog">
+            <Search className="ghz-search-icon" aria-hidden="true" />
+            <input aria-label="Search products" value={query} onChange={(e) => setQuery(e.target.value)}
+              type="search" placeholder="Search model, part number, FRU or SKU" />
+            <button type="submit" aria-label="Search products"><Search aria-hidden="true" /></button>
           </form>
 
-          {/* Right Action Icons */}
-          <div className="flex items-center gap-4 sm:gap-6">
-            <Link
-              to={isAuth ? '/account' : '/login'}
-              className="flex items-center gap-2 text-xs font-semibold text-white hover:text-[#2B85FF] transition-colors"
-            >
-              <UserRound className="h-5 w-5 text-[#2B85FF]" />
-              <span className="hidden lg:inline">{isAuth ? 'My Account' : 'Login / Sign up'}</span>
+          <div className="ghz-header-actions">
+            <Link className="ghz-header-action" to={isAuth ? '/account' : '/login'} aria-label={isAuth ? 'My account' : 'Sign in or register'}>
+              <UserRound aria-hidden="true" /> <span>{isAuth ? 'My Account' : 'Login / Sign up'}</span>
             </Link>
-
-            <Link
-              to="/cart"
-              className="relative flex items-center gap-2 text-xs font-semibold text-white hover:text-[#2B85FF] transition-colors"
-            >
-              <div className="relative">
-                <ShoppingCart className="h-5 w-5 text-[#2B85FF]" />
-                <span className="absolute -right-2 -top-2 flex h-4 min-w-[16px] items-center justify-center rounded-[2px] bg-[#0B63F6] px-1 font-mono text-[10px] font-bold text-white shadow">
-                  {count}
-                </span>
-              </div>
-              <span className="hidden sm:inline">Cart</span>
+            <Link className="ghz-header-action ghz-cart-link" to="/cart" aria-label={`Cart, ${count} items`}>
+              <span className="ghz-cart-icon"><ShoppingCart aria-hidden="true" /><span className="ghz-cart-badge">{count}</span></span>
+              <span>Cart</span>
             </Link>
-
-            <button
-              onClick={() => setOpen((v) => !v)}
-              className="flex h-9 w-9 items-center justify-center rounded-[3px] border border-[#1A2B49] bg-[#051329] text-white lg:hidden"
-              aria-label="Toggle navigation menu"
-              aria-expanded={open}
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            <button className="ghz-menu-toggle" ref={menuButton} type="button" onClick={() => setOpen((prev) => !prev)}
+              aria-controls="ghz-mobile-drawer" aria-label={open ? 'Close navigation' : 'Open navigation'} aria-expanded={open}>
+              {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* TIER 3: Sub-Navigation Bar (#071936 / #051329) */}
-      <div className="hidden border-b border-[#1A2B49] bg-[#051329] lg:block">
-        <div className="container-x flex h-11 items-center justify-between gap-6">
-          <div className="flex items-center gap-6">
-            {/* All Categories Dropdown Button */}
-            <Link
-              to="/shop"
-              className="flex h-8 items-center gap-2 rounded-[3px] bg-[#0B63F6] px-3.5 text-xs font-bold uppercase tracking-wider text-white transition-colors hover:bg-[#0953d4]"
-            >
-              <Menu className="h-3.5 w-3.5" />
-              <span>All Categories</span>
-              <ChevronDown className="h-3 w-3" />
-            </Link>
-
-            {/* Navbar Navigation Links */}
-            <nav className="flex items-center gap-5" aria-label="Main navigation">
-              {NAV_LINKS.map((link) => {
-                const active = link.to === '/' ? location.pathname === '/' : location.pathname.startsWith(link.to);
-                const Icon = link.icon;
-                return (
-                  <Link
-                    key={`${link.label}-${link.to}`}
-                    to={link.to}
-                    className={`relative flex items-center gap-1.5 py-3 text-xs font-semibold tracking-wide transition-colors ${
-                      active ? 'text-[#2B85FF]' : 'text-[#CAD5E3] hover:text-white'
-                    }`}
-                  >
-                    {Icon && <Icon className={`h-3.5 w-3.5 ${active ? 'text-[#2B85FF]' : 'text-[#8A9EB5]'}`} />}
-                    <span>{link.label}</span>
-                    {link.dropdown && <ChevronDown className="h-3 w-3 text-slate-400" />}
-                    {active && (
-                      <span className="absolute bottom-0 left-0 h-[2px] w-full bg-[#0B63F6]" />
-                    )}
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Right Action Button: Request a Part */}
-          <Link
-            to="/repair"
-            className="flex h-8 items-center gap-1.5 rounded-[3px] border border-[#2B85FF]/50 bg-[#0B63F6]/10 px-3.5 text-xs font-bold uppercase tracking-wider text-white transition-all hover:border-[#2B85FF] hover:bg-[#0B63F6] hover:text-white"
-          >
-            <Send className="h-3 w-3 text-[#2B85FF]" />
-            <span>Request a Part</span>
-          </Link>
+      <div className="ghz-nav-bar">
+        <div className="container-x ghz-nav-inner">
+          <Link to="/shop" className="ghz-categories-link"><Menu aria-hidden="true" /> All Categories</Link>
+          <nav className="ghz-desktop-nav" aria-label="Primary navigation">
+            {NAV_LINKS.map(({ to, label, icon: Icon }) => (
+              <Link key={to} to={to} className={`ghz-nav-link${isActive(to) ? ' is-active' : ''}`}
+                aria-current={isActive(to) ? 'page' : undefined}>
+                <Icon aria-hidden="true" /><span>{label}</span>
+              </Link>
+            ))}
+          </nav>
+          <Link to="/repair" className="ghz-request-link"><Send aria-hidden="true" /> Request a Part <ArrowRight aria-hidden="true" /></Link>
         </div>
       </div>
 
-      {/* Mobile Drawer */}
-      {open && (
-        <div className="border-b border-[#1A2B49] bg-[#071936] text-white lg:hidden">
-          <div className="container-x space-y-3 py-4">
-            <form onSubmit={submitSearch} className="relative flex">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search parts, model, FRU..."
-                className="h-10 w-full rounded-[3px] border border-[#1A2B49] bg-[#051329] pl-10 pr-3 text-xs text-white outline-none focus:border-[#0B63F6]"
-              />
-            </form>
-            <Link
-              to="/shop"
-              className="flex items-center justify-between rounded-[3px] bg-[#0B63F6] px-3 py-2 text-xs font-bold uppercase tracking-wider text-white"
-            >
-              <span>All Categories</span>
-              <ChevronDown className="h-3.5 w-3.5" />
+      {open && <button type="button" className="ghz-drawer-backdrop" aria-label="Close navigation" onClick={() => setOpen(false)} />}
+      <div id="ghz-mobile-drawer" ref={drawer} className={`ghz-mobile-drawer${open ? ' is-open' : ''}`}
+        aria-hidden={!open} {...(!open ? { inert: true } : {})}>
+        <div className="ghz-drawer-head"><span>Browse GhazaTech</span><button type="button" onClick={() => setOpen(false)} aria-label="Close menu"><X aria-hidden="true" /></button></div>
+        <form className="ghz-drawer-search" onSubmit={submitSearch} role="search">
+          <Search aria-hidden="true" /><input type="search" aria-label="Search product catalog" placeholder="Find model, part number or SKU" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <button aria-label="Submit search" type="submit"><ArrowRight aria-hidden="true" /></button>
+        </form>
+        <nav aria-label="Mobile navigation" className="ghz-drawer-links">
+          <Link className="ghz-drawer-category" to="/shop" onClick={() => setOpen(false)}><PackageSearch aria-hidden="true" /> All Categories <ArrowRight aria-hidden="true" /></Link>
+          {NAV_LINKS.map(({ to, label, icon: Icon }) => (
+            <Link key={to} to={to} aria-current={isActive(to) ? 'page' : undefined}
+              className={`ghz-drawer-link${isActive(to) ? ' is-active' : ''}`} onClick={() => setOpen(false)}>
+              <Icon aria-hidden="true" /><span>{label}</span><ArrowRight aria-hidden="true" />
             </Link>
-            <div className="divide-y divide-[#1A2B49]">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={`${link.label}-${link.to}`}
-                  to={link.to}
-                  className="flex items-center gap-2 py-2.5 text-xs font-semibold text-[#CAD5E3] hover:text-white"
-                >
-                  {link.icon && <link.icon className="h-4 w-4 text-[#2B85FF]" />}
-                  <span>{link.label}</span>
-                </Link>
-              ))}
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Link
-                to={isAuth ? '/account' : '/login'}
-                className="flex-1 rounded-[3px] border border-[#1A2B49] bg-[#051329] py-2 text-center text-xs font-semibold text-white"
-              >
-                {isAuth ? 'My Account' : 'Customer Login'}
-              </Link>
-              <Link
-                to="/repair"
-                className="flex-1 rounded-[3px] bg-[#0B63F6] py-2 text-center text-xs font-bold uppercase tracking-wider text-white"
-              >
-                Request a Part
-              </Link>
-            </div>
-          </div>
+          ))}
+        </nav>
+        <div className="ghz-drawer-bottom">
+          <Link to={isAuth ? '/account' : '/login'} onClick={() => setOpen(false)}><UserRound aria-hidden="true" />{isAuth ? 'My Account' : 'Customer Login'}</Link>
+          <Link to="/repair" onClick={() => setOpen(false)}><Send aria-hidden="true" />Request a Part</Link>
+          <a href="tel:+971563840130"><Phone aria-hidden="true" />+971 56 384 0130</a>
         </div>
-      )}
+      </div>
     </header>
   );
 }

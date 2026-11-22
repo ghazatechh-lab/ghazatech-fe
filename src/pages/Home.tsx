@@ -256,33 +256,67 @@ export default function Home() {
       </section>
 
       {/* ======================================================== */}
-      {/* BAND 2: 9-CATEGORY DOCK (OVERLAPPING WHITE DOCK)        */}
+      {/* BAND 2: SHOP BY CATEGORY — IMAGE TILE GRID             */}
       {/* ======================================================== */}
-      <section className="container-x relative -mt-10 lg:-mt-14 z-30">
-        <div className="rounded-[18px] border border-[#DCE4EE] bg-white p-5 lg:p-7 shadow-xl">
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-9">
-            {categories.map((category) => {
-              const visual = DOCK_CATEGORIES.find((item) => item.query.toLowerCase() === category.name.toLowerCase())
-                || DOCK_CATEGORIES.find((item) => category.name.toLowerCase().includes(item.query.toLowerCase()) && item.query);
-              return <Link
-                key={category.id}
-                to={`/shop?category=${encodeURIComponent(category.name)}`}
-                className="group flex flex-col items-center rounded-[10px] p-2 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
-              >
-                <div className="flex h-16 w-full items-center justify-center overflow-hidden">
-                  <img
-                    src={category.image_url || visual?.image || '/images/cat-dock-other-parts.webp'}
-                    alt={category.name}
-                    className="max-h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-110"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="mt-2 text-xs font-bold leading-tight text-[#051329] group-hover:text-[#0B63F6]">
-                  {category.name}
-                </div>
-              </Link>;
-            })}
+      <section className="bg-white py-9 sm:py-11 lg:py-12" aria-labelledby="shop-by-category-title">
+        <div className="container-x">
+          <div className="mb-5 flex flex-wrap items-end justify-between gap-3 sm:mb-6">
+            <div>
+              <h2 id="shop-by-category-title" className="font-display text-[23px] font-extrabold tracking-tight text-[#091A34] sm:text-[28px]">
+                Shop by Category
+              </h2>
+              <p className="mt-1 text-sm text-[#66758B]">Find the right parts for your laptop</p>
+            </div>
+            <Link
+              to="/shop"
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm font-semibold text-[#075BD5] transition-colors hover:bg-[#EAF3FF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B63F6]"
+            >
+              View All Categories <ArrowRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
+
+          {categories.length > 0 ? (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
+              {categories.map((category) => {
+                const normalizedName = category.name.trim().toLowerCase();
+                const visual = DOCK_CATEGORIES.find((item) => item.query && normalizedName === item.query.toLowerCase())
+                  || DOCK_CATEGORIES.find((item) => item.query && normalizedName.includes(item.query.toLowerCase()))
+                  || DOCK_CATEGORIES.find((item) => item.query && item.query.toLowerCase().includes(normalizedName));
+                const fallbackImage = visual?.image || CATEGORY_VISUALS[category.name] || '/images/cat-dock-other-parts.webp';
+                return (
+                  <Link
+                    key={category.id}
+                    to={`/shop?category=${encodeURIComponent(category.name)}`}
+                    aria-label={`Shop ${category.name}`}
+                    className="group flex min-h-[142px] flex-col items-center justify-between overflow-hidden rounded-xl border border-[#DBE5F0] bg-gradient-to-b from-[#FFFFFF] to-[#F0F6FD] px-3 pb-3 pt-3 text-center shadow-[0_2px_9px_rgba(13,36,65,0.035)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#9CC5FB] hover:shadow-[0_10px_26px_rgba(13,62,138,0.11)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B63F6] sm:min-h-[160px]"
+                  >
+                    <div className="flex h-[92px] w-full items-center justify-center sm:h-[108px]">
+                      <img
+                        src={category.image_url || fallbackImage}
+                        alt=""
+                        loading="lazy"
+                        onError={(event) => {
+                          if (event.currentTarget.src !== new URL(fallbackImage, window.location.href).href) {
+                            event.currentTarget.src = fallbackImage;
+                          }
+                        }}
+                        className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-[1.07]"
+                      />
+                    </div>
+                    <span className="mt-2 line-clamp-2 min-h-[2.5em] text-[13px] font-bold leading-tight text-[#15243B] transition-colors group-hover:text-[#0B63F6] sm:text-sm">
+                      {category.name}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-[#DBE5F0] bg-[#F7FAFF] p-8 text-center">
+              <p className="font-semibold text-[#15243B]">Categories are currently unavailable.</p>
+              <p className="mt-1 text-sm text-[#66758B]">Browse the product catalog to explore available parts.</p>
+              <Link to="/shop" className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-[#075BD5] hover:underline">Browse products <ArrowRight className="h-4 w-4" /></Link>
+            </div>
+          )}
         </div>
       </section>
 
