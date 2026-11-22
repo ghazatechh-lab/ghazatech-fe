@@ -12,7 +12,7 @@ export default function ProductEditor({product,token,onClose,onSaved}:{product:R
  const edit=Boolean(product.id);
  const [categories,setCategories]=useState<RecordValue[]>([]);
  const [brands,setBrands]=useState<RecordValue[]>([]);
- const [variants,setVariants]=useState<Variant[]>(()=>Array.isArray(product.variants)?product.variants.map((v:RecordValue)=>({...v,price:String(v.price),stock:String(v.stock),attributes:v.attributes||{}})):[]);
+ const [variants,setVariants]=useState<Variant[]>(()=>Array.isArray(product.variants)?product.variants.map((v:RecordValue)=>({sku:String(v.sku||''),name:String(v.name||''),price:String(v.price||''),stock:String(v.stock||'0'),attributes:v.attributes||{},is_active:Boolean(v.is_active??true),id:v.id})):[]);
  const [hasVariants,setHasVariants]=useState(()=>Boolean(product.variant_count||product.variants?.length));
  const [busy,setBusy]=useState(false);const [error,setError]=useState('');
  const [preview,setPreview]=useState<string>(mediaUrl(String(product.image_url||'')));

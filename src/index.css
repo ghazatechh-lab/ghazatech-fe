@@ -1,184 +1,141 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --gt-navy-dark: #051329;
+    --gt-navy-main: #071936;
+    --gt-navy-border: #1A2B49;
+    --gt-cobalt: #0B63F6;
+    --gt-cobalt-light: #2B85FF;
+    --gt-ice-50: #F4F7FB;
+    --gt-ice-200: #DCE4EE;
+    --gt-text-primary: #051329;
+    --gt-text-muted: #5A6D88;
+  }
+
   html {
     scroll-behavior: smooth;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
+
   body {
-    @apply bg-white text-ink-900 antialiased;
+    background-color: #F4F7FB;
+    color: #051329;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Architectural geometric headings */
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: 'Plus Jakarta Sans', 'Space Grotesk', sans-serif;
+    letter-spacing: -0.03em;
+  }
+
+  /* Technical Monospace metadata for SKUs, FRUs, AED prices, and telemetry */
+  .font-mono, code, kbd, samp {
+    font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: #0B63F6;
+    color: #ffffff;
   }
 }
 
 @layer components {
   .container-x {
-    @apply mx-auto w-full max-w-[1320px] px-4 sm:px-6 lg:px-8;
+    @apply mx-auto w-full max-w-[1380px] px-4 sm:px-6 lg:px-8;
   }
+
+  /* Sharp rectangular Electric Cobalt button */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 rounded-[3px] bg-[#0B63F6] px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white transition-all duration-200 hover:bg-[#0953d4] active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50;
   }
+
+  /* Sharp rectangular outline / secondary button */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-ink-200 bg-white px-5 py-3 text-sm font-semibold text-ink-800 transition hover:border-ink-300 hover:bg-ink-50 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2;
+    @apply inline-flex items-center justify-center gap-2 rounded-[3px] border border-[#DCE4EE] bg-white px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-[#051329] transition-all duration-200 hover:border-[#0B63F6] hover:bg-[#F4F7FB] active:scale-[0.99];
   }
-  .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-ink-700 transition hover:bg-ink-100;
+
+  /* Dark navy hero outlined button */
+  .btn-hero-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-[3px] border border-[#2B85FF]/40 bg-white/5 px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-white backdrop-blur-sm transition-all duration-200 hover:border-[#2B85FF] hover:bg-white/10 active:scale-[0.99];
   }
+
+  /* Clean architectural card with 1px hairline border and sharp 3px corners */
+  .arch-card {
+    @apply rounded-[3px] border border-[#DCE4EE] bg-white transition-all duration-200;
+  }
+
+  .arch-card-dark {
+    @apply rounded-[3px] border border-[#1A2B49] bg-[#071936] text-white transition-all duration-200;
+  }
+
   .input {
-    @apply w-full rounded-xl border border-ink-200 bg-white px-4 py-3 text-sm text-ink-900 placeholder-ink-400 transition focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100;
+    @apply w-full rounded-[3px] border border-[#DCE4EE] bg-white px-3.5 py-2.5 text-xs font-medium text-[#051329] placeholder-[#8A9EB5] transition-colors focus:border-[#0B63F6] focus:outline-none focus:ring-1 focus:ring-[#0B63F6];
   }
+
   .label {
-    @apply mb-1.5 block text-sm font-medium text-ink-700;
+    @apply mb-1.5 block text-xs font-bold uppercase tracking-wider text-[#5A6D88];
   }
-  .badge {
-    @apply inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold;
+
+  .badge-stock {
+    @apply inline-flex items-center gap-1 rounded-[2px] bg-emerald-50 px-2 py-0.5 font-mono text-[11px] font-semibold text-emerald-700 border border-emerald-200;
   }
-  .card {
-    @apply rounded-2xl border border-ink-100 bg-white shadow-sm;
+
+  .badge-out {
+    @apply inline-flex items-center gap-1 rounded-[2px] bg-rose-50 px-2 py-0.5 font-mono text-[11px] font-semibold text-rose-700 border border-rose-200;
   }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-  .gradient-text {
-    @apply bg-gradient-to-r from-brand-300 via-brand-400 to-brand-300 bg-clip-text text-transparent;
-  }
-  .shimmer-line {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.35) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-  }
+/* CAD & Technical Precision Lines */
+.cad-grid {
+  background-image: 
+    linear-gradient(to right, rgba(43, 133, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(43, 133, 255, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+.cad-crosshair {
+  position: relative;
+}
+.cad-crosshair::before, .cad-crosshair::after {
+  content: '';
+  position: absolute;
+  background-color: #2B85FF;
+  pointer-events: none;
+}
+.cad-crosshair::before {
+  top: 50%;
+  left: -8px;
+  right: -8px;
+  height: 1px;
+  transform: translateY(-50%);
+}
+.cad-crosshair::after {
+  left: 50%;
+  top: -8px;
+  bottom: -8px;
+  width: 1px;
+  transform: translateX(-50%);
 }
 
-
-/* GhazaTech 2026 design system — shared across public pages and CRM */
-:root {
-  --gt-navy: #06152b;
-  --gt-midnight: #091e42;
-  --gt-blue: #2563eb;
-  --gt-cyan: #06b6d4;
-  --gt-surface: #ffffff;
-  --gt-canvas: #f8fafc;
-  --gt-ink: #0f172a;
-  --gt-muted: #64748b;
-  --gt-ring: rgba(37,99,235,.22);
-  --gt-shadow: 0 22px 60px -28px rgba(6,21,43,.25);
-  --gt-ease: cubic-bezier(.2,.8,.2,1);
-}
-::selection { background: #bcecff; color: #06152b; }
-body { background: var(--gt-canvas); color: var(--gt-ink); }
-:where(a, button, input, textarea, select):focus-visible { outline: 3px solid var(--gt-cyan); outline-offset: 3px; }
-button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
-button:disabled { cursor: not-allowed; }
-.container-x { max-width: 1400px; }
-.font-display { letter-spacing: -.035em; }
-.btn-primary {
-  background: linear-gradient(115deg, #2563eb, #174ed2);
-  box-shadow: 0 10px 22px -11px rgba(37,99,235,.68);
-  transition: transform .22s var(--gt-ease), box-shadow .22s var(--gt-ease), filter .22s var(--gt-ease);
-}
-.btn-primary:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 17px 28px -12px rgba(37,99,235,.6); }
-.btn-secondary { border-color: #d7e4f6; box-shadow: 0 4px 16px -12px rgba(6,21,43,.22); }
-.btn-secondary:hover { transform: translateY(-1px); }
-.input, input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=hidden]), select, textarea {
-  transition: border-color .2s, box-shadow .2s, background-color .2s;
-}
-.input:focus, input:not([type=checkbox]):not([type=radio]):focus, select:focus, textarea:focus {
-  border-color: #60a5fa; box-shadow: 0 0 0 4px var(--gt-ring);
-}
-.card { box-shadow: 0 14px 34px -24px rgba(6,21,43,.22); border-color: #e5eaf2; }
-.gt-page-entrance { animation: gtEnter .55s var(--gt-ease) both; }
-@keyframes gtEnter { from { opacity: 0; transform: translateY(13px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes gtAurora { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-5%,4%) scale(1.12); } }
-@keyframes gtFloat { 0%,100% {transform: translateY(0)} 50% {transform: translateY(-11px)} }
-@keyframes gtGlow { 0%,100% { opacity: .65; } 50% { opacity: 1; } }
-.gt-hero {
-  isolation: isolate;
-  background: radial-gradient(ellipse at 78% 38%, rgba(37,99,235,.27), transparent 42%),
-    radial-gradient(ellipse at 19% 92%, rgba(6,182,212,.18), transparent 45%),
-    linear-gradient(130deg,#06152b,#0a2350 65%,#06152b);
-  color: #fff;
-}
-.gt-hero::after {
-  content: ''; position: absolute; inset: 0; pointer-events:none; opacity:.15; z-index:0;
-  background-image:linear-gradient(rgba(148,197,255,.28) 1px,transparent 1px),linear-gradient(90deg,rgba(148,197,255,.28) 1px,transparent 1px);
-  background-size: 64px 64px; mask-image:linear-gradient(90deg,transparent,#000);
-}
-.gt-hero-visual { isolation:isolate; }
-.gt-hero-visual::before {
-  content:'';position:absolute;width:76%;aspect-ratio:1;left:12%;top:8%;z-index:-1;border-radius:50%;
-  background:radial-gradient(circle,rgba(56,189,248,.27),rgba(37,99,235,.12) 42%,transparent 68%);
-  filter:blur(10px);animation:gtAurora 12s ease-in-out infinite;
-}
-.gt-hero-visual > img { filter:drop-shadow(0 30px 35px rgba(0,0,0,.45)); }
-.gt-eyebrow { letter-spacing:.22em; font-weight:800; color:#7dd3fc; }
-.gt-hairline { background:linear-gradient(90deg,transparent,#38bdf8,transparent);height:1px; opacity:.6; }
-.gt-premium-card { border:1px solid #e5eaf2; border-radius:22px; background:#fff;
-  box-shadow:0 16px 46px -30px rgba(6,21,43,.29);
-  transition:transform .28s var(--gt-ease),box-shadow .28s var(--gt-ease),border-color .28s;
-}
-.gt-premium-card:hover {transform:translateY(-5px);box-shadow:0 25px 55px -27px rgba(9,30,66,.32);border-color:#bcd5fa;}
-.gt-product-media {background:radial-gradient(ellipse at 50% 95%,#e4f2ff,transparent 65%),linear-gradient(150deg,#f8fbff,#f0f5fc);}
-.gt-product-media::after {content:'';position:absolute;inset:0;border-radius:inherit;border:1px solid rgba(255,255,255,.8);pointer-events:none;}
-.gt-product-media img {filter: drop-shadow(0 12px 12px rgba(16,41,76,.13));}
-.gt-section-title { letter-spacing:-.045em; line-height:1.13; }
-.gt-glass {background:rgba(255,255,255,.86);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,.7);}
-.gt-top-nav {background:rgba(255,255,255,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid #e8edf6;}
-.gt-animated-count {transition:transform .24s var(--gt-ease);}
-.gt-animated-count:hover {transform:scale(1.08);}
-.gt-crm-shell {background:radial-gradient(circle at 55% 0%,#eef5ff,#f6f8fc 50%);}
-.gt-crm-shell aside { background:linear-gradient(180deg,#06152b,#0d2343 76%,#06152b); }
-.gt-crm-shell main > div { animation:gtEnter .32s var(--gt-ease) both; }
-.gt-crm-shell table {border-collapse:separate;border-spacing:0;}
-.gt-crm-shell thead th {background:#f5f8fd;color:#52627a;letter-spacing:.035em;text-transform:uppercase;font-size:11px;}
-.gt-crm-shell tbody tr {transition:background .17s;}
-.gt-crm-shell tbody tr:hover {background:#f2f7ff;}
-.gt-crm-shell td {border-bottom:1px solid #eef1f7;}
-.gt-crm-shell :is(.rounded-2xl,.rounded-3xl) {border-color:#e6ecf5;}
-.gt-crm-shell main button:not(:disabled) {transition:transform .18s var(--gt-ease),box-shadow .18s,background-color .18s;}
-.gt-crm-shell main button:hover:not(:disabled) {box-shadow:0 6px 18px -13px rgba(6,21,43,.35);}
-.gt-modal-panel {box-shadow:-20px 0 70px -36px rgba(0,0,0,.35);}
-.gt-visual-sheen {position:relative;overflow:hidden;}
-.gt-visual-sheen::before {content:'';pointer-events:none;position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.16) 49%,transparent 68%);transform:translateX(-120%);transition:transform .9s var(--gt-ease);}
-.gt-visual-sheen:hover::before {transform:translateX(120%);}
-@media (max-width:639px) {
-  .gt-hero .container-x {padding-top:3rem;padding-bottom:3rem;}
-  .gt-hero-visual {min-height:245px;}
-  .gt-section-title {font-size:clamp(1.55rem,7vw,2.25rem);}
-  .gt-crm-shell table th,.gt-crm-shell table td {padding:12px;}
-}
-@media (prefers-reduced-motion:reduce) {
-  .gt-hero-visual::before,.gt-page-entrance {animation:none !important;}
-  .gt-premium-card:hover,.btn-primary:hover {transform:none !important;}
-  html {scroll-behavior:auto;}
+/* Monospace SKU tags */
+.sku-tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  color: #5A6D88;
 }
 
-/* Shared premium finishing for secondary store and service screens */
-body #root > div { min-width:0; }
-main section { scroll-margin-top: 116px; }
-main :is(h1,h2,h3).font-display { text-wrap: balance; }
-main :is(.rounded-2xl,.rounded-3xl).bg-white.border { border-color: #e5ebf5; }
-main :is(.rounded-2xl,.rounded-3xl).bg-white.shadow-sm { box-shadow: 0 14px 40px -30px rgba(6,21,43,.25); }
-main :is(.rounded-2xl,.rounded-3xl).bg-white.shadow-lg { box-shadow: var(--gt-shadow); }
-main :is(.bg-slate-50,.bg-\[\#f7fbff\]) { background-color: #f6f9fd; }
-main :is(.rounded-xl,.rounded-2xl) button:not(:disabled):active { transform: scale(.985); }
-main :is(input, textarea, select) { accent-color: var(--gt-blue); }
-@media (pointer:coarse) { main button, main a { touch-action: manipulation; } }
+/* Price typography */
+.price-tag {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #051329;
+}
