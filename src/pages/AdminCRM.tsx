@@ -49,11 +49,36 @@ function CrmImage({src}:{src:string}){
 }
 function nice(key:string){return key.replaceAll('_',' ').replace(/\b\w/g,a=>a.toUpperCase())}
 async function api(route:string,token:string,init:RequestInit={}){const headers=new Headers(init.headers);headers.set('Authorization',`Token ${token}`);if(!(init.body instanceof FormData)&&init.body)headers.set('Content-Type','application/json');const response=await fetch(`${ROOT}${route}`,{cache:'no-store',...init,headers});const contentType=response.headers.get('content-type')||'';const body=contentType.includes('json')?await response.json():{detail:await response.text()};if(!response.ok)throw new Error(body.detail||JSON.stringify(body));return body}
+/** Collect Django REST Framework paginated CRM results using the same API origin. */
+async function apiList(route: string, token: string): Promise<Row[]> {
+ const all: Row[] = [];
+ let current: string | null = route;
+ const seen = new Set<string>();
+ while (current && !seen.has(current)) {
+  seen.add(current);
+  const payload: Row[] | {results?: Row[]; next?: string | null} = await api(current, token);
+  if (Array.isArray(payload)) { all.push(...payload); break; }
+  all.push(...(Array.isArray(payload.results) ? payload.results : []));
+  if (!payload.next) break;
+  const next = new URL(payload.next, ROOT);
+  // Do not send the staff token to a different host provided by an API response.
+  const expected = new URL(ROOT);
+  if (next.origin !== expected.origin) {
+   // Local Vite proxy responses may contain the Django host instead of the Vite host.
+   // Continue using our configured API origin and only the path/query.
+   if (!next.pathname.startsWith('/api/crm/')) throw new Error('Unexpected CRM pagination URL');
+  }
+  if (!next.pathname.startsWith('/api/crm/')) throw new Error('Unexpected CRM pagination URL');
+  current = next.pathname.slice('/api/crm/'.length) + next.search;
+ }
+ return all;
+}
+
 export default function AdminCRM(){
  const [searchParams,setSearchParams]=useSearchParams();
  const [token,setToken]=useState(()=>sessionStorage.getItem('ghaza_crm_token')||'');const [login,setLogin]=useState({username:'',password:''});const [section,setSection]=useState(()=>sections.some(([k])=>k===searchParams.get('section'))?searchParams.get('section')!:'dashboard');const [rows,setRows]=useState<Row[]>([]);const [stats,setStats]=useState<Row>({});const [report,setReport]=useState<Row>({});const [query,setQuery]=useState('');const [loading,setLoading]=useState(false);const [error,setError]=useState('');const [editing,setEditing]=useState<Row|null>(null);const [options,setOptions]=useState<Record<string,Row[]>>({});const [stock,setStock]=useState<Row|null>(null);const [adjust,setAdjust]=useState({change:'',reason:''});const [name,setName]=useState('');const [details,setDetails]=useState<Row|null>(null);const [notes,setNotes]=useState<Row[]>([]);const [note,setNote]=useState('');const [isSuperuser,setIsSuperuser]=useState(false);const [sidebarCollapsed,setSidebarCollapsed]=useState(()=>localStorage.getItem('ghaza_crm_sidebar_collapsed')==='true');const [mobileMenu,setMobileMenu]=useState(false);const [deleteCustomer,setDeleteCustomer]=useState<Row|null>(null);const [deleting,setDeleting]=useState(false);const [deleteRecord,setDeleteRecord]=useState<Row|null>(null);const [notice,setNotice]=useState('');const [showPassword,setShowPassword]=useState(false);
  useEffect(()=>{if(token)api('me/',token).then(v=>{setName(v.username);setIsSuperuser(Boolean(v.is_superuser))}).catch(()=>{sessionStorage.removeItem('ghaza_crm_token');setToken('');setError('Staff session expired. Please sign in again.')})},[token]);
- const load=async()=>{if(!token)return;setLoading(true);setError('');try{if(section==='dashboard'){setStats(await api('dashboard/',token));setRows([])}else if(section==='reports'){setReport(await api('reports/',token));setRows([])}else{const data=await api(`${section}/?search=${encodeURIComponent(query)}`,token);setRows(Array.isArray(data)?data:data.results||[])} }catch(e){setError(String(e))}finally{setLoading(false)}};
+ const load=async()=>{if(!token)return;setLoading(true);setError('');try{if(section==='dashboard'){setStats(await api('dashboard/',token));setRows([])}else if(section==='reports'){setReport(await api('reports/',token));setRows([])}else{setRows(await apiList(`${section}/?search=${encodeURIComponent(query)}`,token))} }catch(e){setError(String(e))}finally{setLoading(false)}};
  useEffect(()=>{void load()},[section,token]);
  // Refresh active CRM data without a manual browser reload; pause during editing.
  useEffect(() => {

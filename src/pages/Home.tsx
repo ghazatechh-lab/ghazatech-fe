@@ -24,9 +24,9 @@ import {
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { fetchCategories, fetchFeaturedProducts, fetchPublicReviews } from '../lib/api';
+import { fetchBrands, fetchCategories, fetchFeaturedProducts, fetchPublicReviews } from '../lib/api';
 import type { CustomerReview } from '../lib/api';
-import type { Category, Product } from '../lib/types';
+import type { Brand, Category, Product } from '../lib/types';
 import ProductCard from '../components/ProductCard';
 import { CATEGORY_VISUALS } from '../lib/productVisuals';
 
@@ -70,17 +70,7 @@ const CATEGORY_ICONS: Record<string, typeof Battery> = {
   'Wifi Module': Wifi,
 };
 
-const OEM_BRANDS = [
-  { name: 'Lenovo', color: '#E2231A' },
-  { name: 'HP', color: '#0096D6' },
-  { name: 'Dell', color: '#007DB8' },
-  { name: 'Acer', color: '#83B81A' },
-  { name: 'Asus', color: '#00539B' },
-  { name: 'Apple', color: '#555555' },
-  { name: 'Samsung', color: '#1428A0' },
-  { name: 'Toshiba', color: '#CC0000' },
-  { name: 'MSI', color: '#FF0000' },
-];
+
 
 const WHY_CHOOSE_ITEMS = [
   { icon: ShieldCheck, title: 'Quality Checked', text: 'Tested & reliable parts' },
@@ -108,6 +98,7 @@ function HeroImage() {
 
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
+  const [brands, setBrands] = useState<Brand[]>([]);
   const [featured, setFeatured] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<CustomerReview[]>([]);
   const [query, setQuery] = useState('');
@@ -121,6 +112,12 @@ export default function Home() {
         if (active) setCategories(rows);
       })
       .catch(() => {});
+
+    fetchBrands()
+      .then((rows) => {
+        if (active) setBrands(rows);
+      })
+      .catch(() => { if (active) setBrands([]); });
 
     fetchFeaturedProducts()
       .then((rows) => {
@@ -397,7 +394,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 lg:grid-cols-10">
-            {OEM_BRANDS.map((brand) => (
+            {brands.map((brand) => (
               <Link
                 key={brand.name}
                 to={`/shop?brand=${encodeURIComponent(brand.name)}`}
