@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { ShoppingCart, PackageX, ArrowRight } from 'lucide-react';
 import type { Product } from '../lib/types';
 import { useCart } from '../lib/cart';
@@ -6,10 +7,12 @@ import { getProductVisual } from '../lib/productVisuals';
 
 export function ProductThumb({ product, className = '' }: { product: Product; className?: string }) {
   const visual = getProductVisual(product);
-  if (visual) {
+  const [imageFailed, setImageFailed] = useState(false);
+  if (visual && !imageFailed) {
     return (
       <img
         src={visual}
+        onError={() => setImageFailed(true)}
         alt={product.name}
         loading="lazy"
         className={`h-full w-full object-contain transition-transform duration-300 group-hover:scale-105 ${className}`}

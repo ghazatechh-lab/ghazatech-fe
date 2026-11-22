@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ChevronDown, ChevronRight, Grid2X2, List, Search, SlidersHorizontal, X } from 'lucide-react';
 import { fetchBrands, fetchCategories, fetchProducts } from '../lib/api';
@@ -9,6 +9,7 @@ import { CATEGORY_VISUALS } from '../lib/productVisuals';
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const latestRequest = useRef(0);
   const [categories, setCategories] = useState<Category[]>([]);
   const [brands, setBrands] = useState<Brand[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
@@ -28,12 +29,14 @@ export default function Shop() {
   }, []);
 
   useEffect(() => {
+    const requestId = ++latestRequest.current;
     setLoading(true);
     setError(null);
     fetchProducts({ categorySlug: categories.find((category) => category.name === categoryParam)?.slug, brandName: brandParam || undefined, search: searchParams.get('q') || undefined, maxPrice: maxPrice ? Number(maxPrice) : undefined })
-      .then(setProducts)
-      .catch(() => setError('We could not load products right now. Please try again.'))
-      .finally(() => setLoading(false));
+      .then((items) => { if (latestRequest.current === requestId) setProducts(items); })
+      .catch(() => { if (latestRequest.current === requestId) setError('We could not load products right now. Please try again.'); })
+      .finally(() => { if (latestRequest.current === requestId) setLoading(false); });
+    return () => { latestRequest.current++; };
   }, [categories, categoryParam, brandParam, searchParams, maxPrice]);
 
   const updateParams = (key: string, value: string) => {

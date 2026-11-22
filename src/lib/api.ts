@@ -1,26 +1,28 @@
 import type { Brand, Category, Product, RepairRequest, RepairType } from './types';
 import { apiUrl, mediaUrl } from './apiBase';
 async function json<T>(path:string, options?:RequestInit):Promise<T>{
- const response=await fetch(apiUrl(path), { ...options, headers:{ ...(options?.body ? {'Content-Type':'application/json'} : {}), ...(options?.headers || {}) }});
+ const response=await fetch(apiUrl(path), { cache:'no-store', ...options, headers:{ ...(options?.body ? {'Content-Type':'application/json'} : {}), ...(options?.headers || {}) }});
  const data=await response.json().catch(()=>null);
  if(!response.ok){const details=data && typeof data==='object' ? Object.entries(data).map(([k,v])=>`${k}: ${Array.isArray(v)?v.join(', '):String(v)}`).join('; ') : '';throw new Error(details || `Request failed (${response.status})`);}
  return data as T;
 }
 type RawProduct={id:number;name:string;part_number:string;category:number;category_name:string;brand:number;brand_name:string;price:string;stock:number;description:string;image_url:string|null;is_featured:boolean};
+type ApiList<T> = T[] | {results:T[];next?:string|null};
+const listRows = <T,>(value:ApiList<T>):T[] => Array.isArray(value)?value:value.results||[];
 const slug=(v:string)=>v.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 const mapProduct=(p:RawProduct):Product=>({id:String(p.id),name:p.name,slug:String(p.id),category_id:String(p.category),brand_id:String(p.brand),price_aed:Number(p.price),stock:p.stock,part_number:p.part_number,description:p.description,image_url:mediaUrl(p.image_url),featured:p.is_featured,category:{id:String(p.category),name:p.category_name,slug:slug(p.category_name)},brand:{id:String(p.brand),name:p.brand_name}});
-export async function fetchCategories():Promise<Category[]>{const rows=await json<Array<{id:number;name:string;image_url?:string}>>('/api/store/categories/');return rows.map(c=>({...c,id:String(c.id),slug:slug(c.name)}));}
-export async function fetchBrands():Promise<Brand[]>{const rows=await json<Array<{id:number;name:string}>>('/api/store/brands/');return rows.map(b=>({...b,id:String(b.id)}));}
+export async function fetchCategories():Promise<Category[]>{const data=await json<ApiList<{id:number;name:string;image_url?:string}>>('/api/store/categories/');return listRows(data).map(c=>({...c,id:String(c.id),slug:slug(c.name),image_url:mediaUrl(c.image_url)}));}
+export async function fetchBrands():Promise<Brand[]>{const data=await json<ApiList<{id:number;name:string}>>('/api/store/brands/');return listRows(data).map(b=>({...b,id:String(b.id)}));}
 export type ProductFilters={categorySlug?:string;brandName?:string;search?:string;maxPrice?:number};
 export async function fetchProducts(filters:ProductFilters={}):Promise<Product[]>{
  const params=new URLSearchParams({page_size:'100'});
  if(filters.brandName)params.set('brand',filters.brandName);
  if(filters.search)params.set('q',filters.search);
  const all:RawProduct[]=[];let page=1;
- do{params.set('page',String(page));const r=await json<{results:RawProduct[];next:string|null}>(`/api/store/products/?${params}`);all.push(...r.results);if(!r.next)break;page++;}while(page<=10);
+ do{params.set('page',String(page));const r=await json<ApiList<RawProduct>>(`/api/store/products/?${params}`);all.push(...listRows(r));if(Array.isArray(r)||!r.next)break;page++;}while(page<=10);
  return all.map(mapProduct).filter(p=>(!filters.categorySlug || p.category?.slug===filters.categorySlug) && (filters.maxPrice==null || p.price_aed<=filters.maxPrice));
 }
-export async function fetchFeaturedProducts():Promise<Product[]>{const rows=await json<{results:RawProduct[]}>('/api/store/products/?featured=true&page_size=100');return rows.results.map(mapProduct);}
+export async function fetchFeaturedProducts():Promise<Product[]>{const data=await json<ApiList<RawProduct>>('/api/store/products/?featured=true&page_size=100');return listRows(data).map(mapProduct);}
 export async function fetchProductBySlug(id:string):Promise<Product|null>{if(!/^\d+$/.test(id))return null;try{return mapProduct(await json<RawProduct>(`/api/store/products/${id}/`));}catch{return null;}}
 export type RepairSubmission={requestType:RepairType;customerName:string;phone:string;email?:string;laptopModel?:string;issue?:string};
 export async function submitRepairRequest(input:RepairSubmission):Promise<string>{
@@ -40,5 +42,5 @@ export type CustomerReview = {
  id:number; customer_name:string; customer_type:string; review:string; related_item:string; rating:number;
 };
 export async function fetchPublicReviews():Promise<CustomerReview[]>{
- return json<CustomerReview[]>('/api/store/reviews/');
+ const data=await json<ApiList<CustomerReview>>('/api/store/reviews/');return listRows(data);
 }

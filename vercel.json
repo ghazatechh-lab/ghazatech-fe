@@ -1,12 +1,7 @@
 {
   "rewrites": [
-    {
-      "source": "/api/:path*",
-      "destination": "https://api.ghazatech.com/api/:path*"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/api/:path*", "destination": "https://api.ghazatech.com/api/:path*" },
+    { "source": "/media/:path*", "destination": "https://api.ghazatech.com/media/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

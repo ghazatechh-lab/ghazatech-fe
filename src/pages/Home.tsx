@@ -70,79 +70,6 @@ const CATEGORY_ICONS: Record<string, typeof Battery> = {
   'Wifi Module': Wifi,
 };
 
-// Fallback categories matching the exact database records
-const DEFAULT_CATEGORIES: Category[] = [
-  { id: '1', name: 'Battery', slug: 'battery' },
-  { id: '2', name: 'Charger', slug: 'charger' },
-  { id: '4', name: 'Keyboard', slug: 'keyboard' },
-  { id: '3', name: 'SSD', slug: 'ssd' },
-  { id: '5', name: 'Top cover', slug: 'top-cover' },
-];
-
-// Fallback featured products matching the exact database records
-const DEFAULT_FEATURED_PRODUCTS: Product[] = [
-  {
-    id: '4',
-    name: 'DELL F3YGT BATTERY',
-    slug: '4',
-    category_id: '1',
-    brand_id: '3',
-    price_aed: 35.0,
-    stock: 9,
-    part_number: 'F3YGT',
-    description: 'Genuine Dell replacement battery. High quality tested cells.',
-    image_url: 'https://api.ghazatech.com/media/products/f3ygt.jpg',
-    featured: true,
-    brand: { id: '3', name: 'Dell' },
-    category: { id: '1', name: 'Battery', slug: 'battery' },
-  },
-  {
-    id: '7',
-    name: 'Replacement Battery for Acer AC14B8K',
-    slug: '7',
-    category_id: '1',
-    brand_id: '1',
-    price_aed: 25.0,
-    stock: 5,
-    part_number: 'AC14B8K',
-    description: 'High-grade replacement laptop battery for Acer AC14B8K models.',
-    image_url: 'https://api.ghazatech.com/media/products/ghazatech-ac14b8k.jpg',
-    featured: true,
-    brand: { id: '1', name: 'Acer' },
-    category: { id: '1', name: 'Battery', slug: 'battery' },
-  },
-  {
-    id: '6',
-    name: 'Replacement Battery for Acer AL12A32',
-    slug: '6',
-    category_id: '1',
-    brand_id: '1',
-    price_aed: 25.0,
-    stock: 5,
-    part_number: 'AL12A32',
-    description: 'Original grade laptop replacement battery for Acer AL12A32.',
-    image_url: 'https://api.ghazatech.com/media/products/ghazatech-al12a32.jpg',
-    featured: true,
-    brand: { id: '1', name: 'Acer' },
-    category: { id: '1', name: 'Battery', slug: 'battery' },
-  },
-  {
-    id: '5',
-    name: 'Replacement Battery for Acer AS16A5K',
-    slug: '5',
-    category_id: '1',
-    brand_id: '1',
-    price_aed: 25.0,
-    stock: 4,
-    part_number: 'AS13A5K',
-    description: 'Reliable replacement battery for Acer AS16A5K series.',
-    image_url: 'https://api.ghazatech.com/media/products/ghazatech-as13a5k.jpg',
-    featured: true,
-    brand: { id: '1', name: 'Acer' },
-    category: { id: '1', name: 'Battery', slug: 'battery' },
-  },
-];
-
 const OEM_BRANDS = [
   { name: 'Lenovo', color: '#E2231A' },
   { name: 'HP', color: '#0096D6' },
@@ -180,8 +107,8 @@ function HeroImage() {
 }
 
 export default function Home() {
-  const [categories, setCategories] = useState<Category[]>(DEFAULT_CATEGORIES);
-  const [featured, setFeatured] = useState<Product[]>(DEFAULT_FEATURED_PRODUCTS);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [featured, setFeatured] = useState<Product[]>([]);
   const [reviews, setReviews] = useState<CustomerReview[]>([]);
   const [query, setQuery] = useState('');
   const heroRef = useRef<HTMLDivElement>(null);
@@ -191,13 +118,13 @@ export default function Home() {
     let active = true;
     fetchCategories()
       .then((rows) => {
-        if (active && rows.length > 0) setCategories(rows);
+        if (active) setCategories(rows);
       })
       .catch(() => {});
 
     fetchFeaturedProducts()
       .then((rows) => {
-        if (active && rows.length > 0) setFeatured(rows.slice(0, 8));
+        if (active) setFeatured(rows.slice(0, 8));
       })
       .catch(() => {});
 
@@ -344,25 +271,27 @@ export default function Home() {
       <section className="container-x relative -mt-10 lg:-mt-14 z-30">
         <div className="rounded-[18px] border border-[#DCE4EE] bg-white p-5 lg:p-7 shadow-xl">
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 lg:grid-cols-9">
-            {DOCK_CATEGORIES.map((cat) => (
-              <Link
-                key={cat.name}
-                to={cat.query ? `/shop?category=${encodeURIComponent(cat.query)}` : '/shop'}
+            {categories.map((category) => {
+              const visual = DOCK_CATEGORIES.find((item) => item.query.toLowerCase() === category.name.toLowerCase())
+                || DOCK_CATEGORIES.find((item) => category.name.toLowerCase().includes(item.query.toLowerCase()) && item.query);
+              return <Link
+                key={category.id}
+                to={`/shop?category=${encodeURIComponent(category.name)}`}
                 className="group flex flex-col items-center rounded-[10px] p-2 text-center transition-all duration-200 hover:-translate-y-1 hover:shadow-md"
               >
                 <div className="flex h-16 w-full items-center justify-center overflow-hidden">
                   <img
-                    src={cat.image}
-                    alt={cat.name}
+                    src={category.image_url || visual?.image || '/images/cat-dock-other-parts.webp'}
+                    alt={category.name}
                     className="max-h-14 w-auto object-contain transition-transform duration-300 group-hover:scale-110"
                     loading="lazy"
                   />
                 </div>
                 <div className="mt-2 text-xs font-bold leading-tight text-[#051329] group-hover:text-[#0B63F6]">
-                  {cat.name}
+                  {category.name}
                 </div>
-              </Link>
-            ))}
+              </Link>;
+            })}
           </div>
         </div>
       </section>
