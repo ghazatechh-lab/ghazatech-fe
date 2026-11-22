@@ -15,7 +15,7 @@ export default function ProductEditor({product,token,onClose,onSaved}:{product:R
  const [variants,setVariants]=useState<Variant[]>(()=>Array.isArray(product.variants)?product.variants.map((v:RecordValue)=>({sku:String(v.sku||''),name:String(v.name||''),price:String(v.price||''),stock:String(v.stock||'0'),attributes:v.attributes||{},is_active:Boolean(v.is_active??true),id:v.id})):[]);
  const [hasVariants,setHasVariants]=useState(()=>Boolean(product.variant_count||product.variants?.length));
  const [busy,setBusy]=useState(false);const [error,setError]=useState('');
- const [preview,setPreview]=useState<string>(mediaUrl(String(product.image_url||'')));
+ const [preview,setPreview]=useState<string>(mediaUrl(String(product.image_url||product.image||'')));
  const [previewFailed,setPreviewFailed]=useState(false);
  useEffect(()=>{const headers={Authorization:`Token ${token}`};Promise.all(['categories','brands'].map(async name=>{const r=await fetch(apiUrl(`/api/crm/${name}/`),{headers});if(!r.ok)throw Error(`Unable to load ${name}`);const data=await r.json();return Array.isArray(data)?data:data.results||[]})).then(([c,b])=>{setCategories(c);setBrands(b)}).catch(e=>setError(String(e)))},[token]);
  const change=(i:number,key:keyof Variant,value:any)=>setVariants(v=>v.map((item,j)=>i===j?{...item,[key]:value}:item));

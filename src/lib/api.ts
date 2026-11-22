@@ -6,11 +6,11 @@ async function json<T>(path:string, options?:RequestInit):Promise<T>{
  if(!response.ok){const details=data && typeof data==='object' ? Object.entries(data).map(([k,v])=>`${k}: ${Array.isArray(v)?v.join(', '):String(v)}`).join('; ') : '';throw new Error(details || `Request failed (${response.status})`);}
  return data as T;
 }
-type RawProduct={id:number;name:string;part_number:string;category:number;category_name:string;brand:number;brand_name:string;price:string;stock:number;description:string;image_url:string|null;is_featured:boolean};
+type RawProduct={id:number;name:string;part_number:string;category:number;category_name:string;brand:number;brand_name:string;price:string;stock:number;description:string;image_url:string|null;image?:string|null;is_featured:boolean};
 type ApiList<T> = T[] | {results:T[];next?:string|null};
 const listRows = <T,>(value:ApiList<T>):T[] => Array.isArray(value)?value:value.results||[];
 const slug=(v:string)=>v.toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-const mapProduct=(p:RawProduct):Product=>({id:String(p.id),name:p.name,slug:String(p.id),category_id:String(p.category),brand_id:String(p.brand),price_aed:Number(p.price),stock:p.stock,part_number:p.part_number,description:p.description,image_url:mediaUrl(p.image_url),featured:p.is_featured,category:{id:String(p.category),name:p.category_name,slug:slug(p.category_name)},brand:{id:String(p.brand),name:p.brand_name}});
+const mapProduct=(p:RawProduct):Product=>({id:String(p.id),name:p.name,slug:String(p.id),category_id:String(p.category),brand_id:String(p.brand),price_aed:Number(p.price),stock:p.stock,part_number:p.part_number,description:p.description,image_url:mediaUrl(p.image_url||p.image),featured:p.is_featured,category:{id:String(p.category),name:p.category_name,slug:slug(p.category_name)},brand:{id:String(p.brand),name:p.brand_name}});
 export async function fetchCategories():Promise<Category[]>{const data=await json<ApiList<{id:number;name:string;image_url?:string}>>('/api/store/categories/');return listRows(data).map(c=>({...c,id:String(c.id),slug:slug(c.name),image_url:mediaUrl(c.image_url)}));}
 export async function fetchBrands():Promise<Brand[]>{const data=await json<ApiList<{id:number;name:string}>>('/api/store/brands/');return listRows(data).map(b=>({...b,id:String(b.id)}));}
 export type ProductFilters={categorySlug?:string;brandName?:string;search?:string;maxPrice?:number};
