@@ -1,0 +1,156 @@
+/* GhazaTech / Enterprise Console 2026
+   Single terminal theme layer: deliberately applied after the legacy CRM styles.
+   The data, routes, permissions and business state remain owned by the CRM React modules. */
+.gt-crm-shell.crm-premium-shell {
+  --crm-page:#f6f8fc;--crm-surface:#fff;--crm-line:#e4eaf3;
+  --crm-text:#16243a;--crm-secondary:#64748b;--crm-accent:#2563eb;
+  background:var(--crm-page);color:var(--crm-text);
+  -webkit-font-smoothing:antialiased;
+}
+.gt-crm-shell .crm-workspace {background:#f6f8fc;min-width:0;}
+/* Sidebar architecture: independent brand, scrollable links, always-visible footer. */
+.gt-crm-shell.crm-premium-shell aside.gt-sidebar {
+  --gt-sidebar-expanded:252px;--gt-sidebar-compact:68px;
+  background:#0c1628;border:1px solid #243449;
+  box-shadow:0 8px 28px -20px rgba(4,13,29,.65);
+  border-radius:15px;
+}
+.gt-crm-shell .gt-sidebar-brand {min-height:72px;padding:12px 13px;}
+.gt-crm-shell .gt-sidebar-brand-symbol {width:38px;height:38px;border-radius:10px;box-shadow:none;}
+.gt-crm-shell .gt-sidebar-brand-words strong {letter-spacing:-.055em;font-weight:800;}
+.gt-crm-shell .gt-sidebar-brand-words small {letter-spacing:.105em;}
+.gt-crm-shell .gt-sidebar-navigation {padding:9px 9px 12px;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:transparent transparent;}
+.gt-crm-shell .gt-sidebar-navigation:hover,.gt-crm-shell .gt-sidebar-navigation:focus-visible {scrollbar-color:#34445a transparent;}
+.gt-crm-shell .gt-sidebar-group {margin:0;}
+.gt-crm-shell .gt-sidebar-group+.gt-sidebar-group {padding-top:12px;margin-top:4px;border:0;}
+.gt-crm-shell .gt-sidebar-group-label {height:19px;margin:0 0 4px;padding:0 12px;letter-spacing:.1em;font-size:10px;color:#91a3bd;font-weight:650;}
+.gt-crm-shell .gt-sidebar-group-items {gap:1px;}
+.gt-crm-shell.crm-premium-shell aside.gt-sidebar nav button.gt-sidebar-item {
+  min-height:40px;height:40px;width:100%;border:1px solid transparent;border-radius:9px;
+  padding:0 12px;gap:11px;background:transparent;color:#b4c0d2;font-size:12.75px;
+  font-weight:520;letter-spacing:-.01em;transform:none;box-shadow:none;
+  transition:background-color .2s,color .2s,border-color .2s;
+}
+.gt-crm-shell.crm-premium-shell aside.gt-sidebar nav button.gt-sidebar-item:hover {background:#ffffff0d;color:#fff;}
+.gt-crm-shell.crm-premium-shell aside.gt-sidebar nav button.gt-sidebar-item.is-active {background:#172d4c;border-color:#34527350;color:#f8fbff;font-weight:680;}
+.gt-crm-shell .gt-sidebar-item.is-active .gt-sidebar-item-icon {color:#77d4ff;}
+.gt-crm-shell .gt-sidebar-moving-marker {background:#38bdf8;box-shadow:none;width:3px;left:8px;border-radius:5px;transition:transform .2s cubic-bezier(.2,.8,.2,1),height .2s,opacity .1s;}
+.gt-crm-shell .gt-sidebar-footer {background:#0c1628;border-top:1px solid #ffffff16;padding:9px;}
+.gt-crm-shell .gt-sidebar-storefront {color:#b3c3d7;height:36px;border-radius:9px;}
+.gt-crm-shell .gt-sidebar-storefront:hover {background:#ffffff11;color:#fff;}
+.gt-crm-shell .gt-sidebar-profile-trigger {background:#142238;border:1px solid #ffffff12;min-height:49px;border-radius:10px;}
+.gt-crm-shell .gt-sidebar-profile-trigger:hover {background:#192a43;}
+.gt-crm-shell .gt-sidebar-collapse {width:34px;height:34px;min-height:34px;}
+.gt-crm-shell .gt-sidebar.is-collapsed .gt-sidebar-group-label {height:14px;}
+.gt-crm-shell .gt-sidebar.is-collapsed .gt-sidebar-group-label span:first-child {font-size:0;}
+.gt-crm-shell .gt-sidebar.is-collapsed .gt-sidebar-group-label span:first-child:after {content:'···';font-size:11px;letter-spacing:2px;}
+.gt-crm-shell .gt-sidebar.is-collapsed .gt-sidebar-storefront {padding:0;}
+/* Header: restrained navigation with a real data freshness timestamp. */
+.gt-crm-shell .crm-main-header {
+  min-height:73px;padding:12px clamp(14px,2vw,30px);
+  background:rgba(255,255,255,.96);border-bottom:1px solid var(--crm-line);
+  box-shadow:0 1px 0 rgba(16,32,54,.02);
+}
+.gt-crm-shell .crm-main-header p {font-size:11px;color:#94a3b8;letter-spacing:.012em;}
+.gt-crm-shell .crm-main-header h1 {font-size:22px;line-height:1.25;font-weight:800;letter-spacing:-.035em;color:#16243a;}
+.gt-crm-shell .crm-header-actions {gap:9px;flex-shrink:0;}
+.gt-crm-shell .crm-data-freshness {height:33px;gap:7px;border:1px solid #d9f1e7;padding:0 11px;border-radius:999px;color:#158367;font-size:11px;font-weight:650;background:#f0fbf7;white-space:nowrap;}
+.gt-crm-shell .crm-data-freshness-dot {height:7px;width:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.1);}
+.gt-crm-shell .crm-header-actions>a,.gt-crm-shell .crm-header-actions>button {height:35px;min-height:35px;border-radius:9px;transition:background-color .18s,border-color .18s;}
+.gt-crm-shell .crm-header-actions>a {border:1px solid #e2e8f0;padding:0 12px;background:#fff;}
+.gt-crm-shell .crm-header-actions>a:hover {background:#eff6ff;border-color:#bfdbfe;}
+.gt-crm-shell .crm-content {padding:24px clamp(14px,2vw,30px) 36px;max-width:1740px;}
+/* Dashboard composition */
+.gt-crm-shell .crm-welcome {margin:0 0 19px;gap:16px;}
+.gt-crm-shell .crm-welcome h2 {font-size:clamp(22px,2.05vw,29px);line-height:1.18;letter-spacing:-.04em;}
+.gt-crm-shell .crm-welcome p:not(.crm-eyebrow) {font-size:12.5px;color:#64748b;line-height:1.55;}
+.gt-crm-shell .crm-eyebrow {font-size:10px;letter-spacing:.14em;}
+.gt-crm-shell .crm-metric-grid {gap:14px;margin-bottom:16px;}
+.gt-crm-shell.crm-premium-shell .crm-kpi {
+  min-height:152px;padding:18px 19px;border:1px solid var(--crm-line);border-radius:14px;
+  box-shadow:0 2px 8px -7px #233a5d43;background:white;gap:10px;
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.gt-crm-shell.crm-premium-shell .crm-kpi:hover {transform:translateY(-2px);border-color:#cbd8eb;box-shadow:0 14px 25px -22px #112c5777;}
+.gt-crm-shell .crm-kpi-top {font-size:11.5px;color:#64748b;font-weight:700;}
+.gt-crm-shell .crm-kpi-icon {width:36px;height:36px;border-radius:10px;}
+.gt-crm-shell .crm-kpi strong {font-size:clamp(24px,2.2vw,32px);line-height:1.12;font-weight:800;letter-spacing:-.045em;}
+.gt-crm-shell .crm-kpi-foot {font-size:11px;color:#8492a6;}
+.gt-crm-shell.crm-premium-shell .crm-operations,.gt-crm-shell.crm-premium-shell .crm-surface {
+  border:1px solid var(--crm-line);border-radius:14px;
+  background:white;box-shadow:0 2px 12px -11px #17375b44;margin-bottom:16px;
+}
+.gt-crm-shell .crm-operations {padding:17px 19px;}
+.gt-crm-shell .crm-panel-heading {margin-bottom:14px;}
+.gt-crm-shell .crm-panel-heading h3 {font-size:15px;font-weight:780;letter-spacing:-.025em;}
+.gt-crm-shell .crm-panel-heading p {color:#8997ab;font-size:11.5px;line-height:1.45;}
+.gt-crm-shell .crm-ops-grid {gap:11px;}
+.gt-crm-shell .crm-op-card {padding:11px 12px;border:1px solid #ebeff6;border-radius:11px;min-height:72px;background:#fff;gap:10px;}
+.gt-crm-shell .crm-op-card:hover {background:#f8fbff;border-color:#c9d9ef;transform:translateY(-1px);}
+.gt-crm-shell .crm-op-icon {height:36px;width:36px;border-radius:10px;}
+.gt-crm-shell .crm-op-copy strong {font-size:20px;line-height:1.1;}
+.gt-crm-shell .crm-op-copy>span {font-size:11px;color:#64748b;}
+.gt-crm-shell .crm-dashboard-bottom {grid-template-columns:minmax(0,8fr) minmax(275px,4fr);gap:15px;align-items:start;}
+.gt-crm-shell .crm-dashboard-bottom .crm-surface {padding:17px 0 11px;}
+.gt-crm-shell .crm-dashboard-bottom .crm-panel-heading {padding:0 18px;margin-bottom:12px;}
+.gt-crm-shell .crm-dashboard-bottom .crm-table-empty {min-height:120px;padding:20px 16px;gap:6px;}
+.gt-crm-shell .crm-dashboard-bottom .crm-table-empty>span {width:39px;height:39px;border-radius:11px;margin:0;}
+.gt-crm-shell .crm-dashboard-bottom .crm-table-empty>span svg {height:19px;width:19px;}
+.gt-crm-shell .crm-dashboard-bottom .crm-table-empty strong {font-size:13px;}
+.gt-crm-shell .crm-dashboard-bottom .crm-table-empty p {font-size:11.5px;}
+.gt-crm-shell .crm-command-center .crm-quick-action {
+  min-height:57px;padding:9px 11px;margin:0 11px;width:calc(100% - 22px);
+  border-radius:9px;border-top:1px solid #f1f4f8;gap:11px;
+}
+.gt-crm-shell .crm-command-center .crm-quick-action:first-of-type {border-top:0;}
+.gt-crm-shell .crm-command-center .crm-quick-action:hover {background:#f5f8fd;}
+.gt-crm-shell .crm-command-center .crm-quick-action>span {width:35px;height:35px;border-radius:10px;}
+.gt-crm-shell .crm-command-center .crm-quick-action strong {font-size:12.5px;color:#21314b;}
+.gt-crm-shell .crm-command-center .crm-quick-action small {font-size:11px;color:#8997aa;}
+/* Cross-module table, action, modal and form consistency. */
+.gt-crm-shell .crm-table-wrapper {border:1px solid var(--crm-line);border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 2px 12px -10px #19375e40;}
+.gt-crm-shell .crm-data-table thead,.gt-crm-shell .crm-products-table thead {background:#f9fbfe;}
+.gt-crm-shell .crm-data-table th,.gt-crm-shell .crm-products-table th {font-size:10.5px;letter-spacing:.035em;color:#67778f;font-weight:750;background:#f9fbfe;border-bottom:1px solid #e8edf4;}
+.gt-crm-shell .crm-data-table td,.gt-crm-shell .crm-products-table td {border-bottom:1px solid #eef2f7;color:#43536c;}
+.gt-crm-shell .crm-data-table tbody tr:hover,.gt-crm-shell .crm-products-table tbody tr:hover {background:#f8fbff;}
+.gt-crm-shell .crm-status {font-size:10.5px;font-weight:730;padding:5px 9px;}
+.gt-crm-shell .crm-row-actions button,.gt-crm-shell .crm-products-actions button {transition:background-color .18s,border-color .18s,color .18s;}
+.gt-crm-shell .crm-table-footer {padding:12px 17px;color:#8a98aa;background:#fcfdff;}
+.gt-crm-shell .crm-catalog-quicklinks {border-radius:13px;border-color:var(--crm-line);}
+.gt-crm-shell .crm-table-empty {min-height:120px;padding:26px 16px;}
+.gt-crm-shell input:not([type=checkbox]):not([type=radio]):not([type=file]),.gt-crm-shell select,.gt-crm-shell textarea {border-color:#dfe7f1;border-radius:10px;}
+.gt-crm-shell input:focus-visible,.gt-crm-shell select:focus-visible,.gt-crm-shell textarea:focus-visible,.gt-crm-shell button:focus-visible,.gt-crm-shell a:focus-visible {outline:2px solid #60a5fa;outline-offset:2px;}
+.gt-crm-shell .gt-modal-panel {box-shadow:-20px 0 65px rgba(8,23,46,.18);}
+/* Intentional motion is one-time on navigation, never repeatedly during auto-refresh. */
+@keyframes crm-enter-soft {from {opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.gt-crm-shell .crm-animate-entrance {animation:crm-enter-soft .33s cubic-bezier(.2,.75,.2,1) both;}
+.gt-crm-shell .crm-animate-entrance:nth-of-type(2){animation-delay:.055s;}
+.gt-crm-shell .crm-animate-entrance:nth-of-type(3){animation-delay:.1s;}
+.gt-crm-shell .crm-kpi:focus-visible,.gt-crm-shell .crm-op-card:focus-visible {border-color:#93c5fd;}
+@media (max-width:1350px) {.gt-crm-shell .crm-dashboard-bottom {grid-template-columns:minmax(0,1fr);}}
+@media (max-width:1023px) {
+ .gt-crm-shell.crm-premium-shell aside.gt-sidebar {position:fixed;top:0;left:0;margin:0;height:100dvh;width:min(300px,calc(100vw - 38px));max-width:300px;border-radius:0 15px 15px 0;}
+ .gt-crm-shell .gt-sidebar.is-collapsed .gt-sidebar-group-label{height:19px;}
+ .gt-crm-shell .gt-sidebar.is-collapsed .gt-sidebar-group-label span:first-child{font-size:10px;}
+ .gt-crm-shell .gt-sidebar.is-collapsed .gt-sidebar-group-label span:first-child:after{content:none;}
+ .gt-crm-shell .crm-content{padding:17px 17px 26px;}
+}
+@media (max-width:640px) {
+ .gt-crm-shell .crm-main-header {min-height:66px;padding:10px 13px;}
+ .gt-crm-shell .crm-main-header h1{font-size:19px;}
+ .gt-crm-shell .crm-header-actions{gap:5px;}
+ .gt-crm-shell .crm-content {padding:14px 12px 24px;}
+ .gt-crm-shell .crm-metric-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+ .gt-crm-shell.crm-premium-shell .crm-kpi {min-height:137px;padding:13px 12px;}
+ .gt-crm-shell .crm-kpi strong {font-size:22px;}
+ .gt-crm-shell .crm-ops-grid {grid-template-columns:repeat(2,minmax(0,1fr));}
+ .gt-crm-shell .crm-op-card {min-height:66px;padding:10px;}
+ .gt-crm-shell .crm-welcome {align-items:flex-start;flex-direction:column;}
+ .gt-crm-shell .crm-operations {padding:15px 12px;}
+ .gt-crm-shell .crm-dashboard-bottom .crm-panel-heading {gap:7px;flex-wrap:wrap;}
+}
+@media (max-width:370px){.gt-crm-shell .crm-metric-grid,.gt-crm-shell .crm-ops-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion: reduce){
+ .gt-crm-shell .crm-animate-entrance{animation:none!important;}
+ .gt-crm-shell .crm-kpi,.gt-crm-shell .crm-op-card,.gt-crm-shell .gt-sidebar-item{transition:none!important;}
+}

@@ -15,16 +15,17 @@ const NAV_GROUPS: NavGroup[] = [
     { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { key: 'reports', label: 'Analytics & Reports', icon: BarChart3 },
   ] },
-  { title: 'Sales & Customers', items: [
-    { key: 'orders', label: 'Orders', icon: ShoppingCart },
-    { key: 'customers', label: 'Customers', icon: Users },
-    { key: 'returns', label: 'Returns', icon: RotateCcw },
-  ] },
-  { title: 'Products & Inventory', items: [
-    { key: 'products', label: 'Products', icon: Package },
+  // Catalog setup comes first: classify products, register brands, then add products.
+  { title: 'Catalog & Inventory', items: [
     { key: 'categories', label: 'Categories', icon: Shapes },
     { key: 'brands', label: 'Brands', icon: Tags },
+    { key: 'products', label: 'Products', icon: Package },
     { key: 'inventory', label: 'Inventory Ledger', icon: Boxes },
+  ] },
+  { title: 'Customers & Sales', items: [
+    { key: 'customers', label: 'Customers', icon: Users },
+    { key: 'orders', label: 'Orders', icon: ShoppingCart },
+    { key: 'returns', label: 'Returns', icon: RotateCcw },
   ] },
   { title: 'Service Management', items: [
     { key: 'repairs', label: 'Repairs', icon: Wrench },
@@ -173,7 +174,7 @@ export default function CRMSidebar({ active, onNavigate, name, isSuperuser, onLo
     <aside ref={aside} className={`gt-sidebar${collapsed ? ' is-collapsed' : ''}${mobileOpen ? ' is-mobile-open' : ''}`} aria-label="CRM sidebar">
       <SidebarBrand collapsed={collapsed} />
       <button type="button" className="gt-sidebar-close-mobile" aria-label="Close navigation" onClick={onMobileClose}><X size={20}/></button>
-          <nav ref={nav} className="gt-sidebar-navigation" aria-label="CRM navigation">
+          <nav ref={nav} className="gt-sidebar-navigation" aria-label="CRM navigation" tabIndex={0}>
         <span className="gt-sidebar-moving-marker" style={{ transform: `translateY(${marker.top}px)`, height: marker.height, opacity: marker.visible ? 1 : 0 }} aria-hidden="true" />
         {NAV_GROUPS.map(group => <SidebarNavigationGroup key={group.title} group={group} active={active} onNavigate={onNavigate} register={register}/>)}
       </nav>

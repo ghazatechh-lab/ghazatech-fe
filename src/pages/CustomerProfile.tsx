@@ -1,9 +1,11 @@
+import { useToast } from '../components/ui/ToastProvider';
 import {useEffect,useState,type FormEvent} from 'react';
 import {Link,useNavigate} from 'react-router-dom';
 import {accountApi,accountPatch,clearCustomerToken,getCustomerToken,type Customer} from '../lib/auth';
 import {UserRound,Package,LockKeyhole,LogOut,CheckCircle2,Mail,Phone,ShieldCheck,RefreshCw} from 'lucide-react';
 type Order={id:number;order_number:string;status:string;payment_status:string;total:string;created_at:string;items:{product_name:string;quantity:number;price:string}[]};
 export default function CustomerProfile(){
+ const toast=useToast();
  const nav=useNavigate();const [profile,setProfile]=useState<Customer|null>(null);const [orders,setOrders]=useState<Order[]>([]);
  const [tab,setTab]=useState<'profile'|'orders'|'security'>('profile');const [form,setForm]=useState({first_name:'',last_name:'',mobile_number:''});
  const [password,setPassword]=useState({old_password:'',new_password:'',confirm_password:''});const [busy,setBusy]=useState(false);const [loading,setLoading]=useState(true);const [error,setError]=useState('');const [notice,setNotice]=useState('');
@@ -12,9 +14,9 @@ export default function CustomerProfile(){
  .then(([p,o])=>{if(active){setProfile(p);setOrders(o);setForm({first_name:p.first_name||'',last_name:p.last_name||'',mobile_number:p.mobile_number||''});}})
  .catch(()=>{if(active){clearCustomerToken();nav('/login?next=%2Faccount',{replace:true});}}).finally(()=>{if(active)setLoading(false);});return()=>{active=false;};},[nav]);
  const resetMessages=()=>{setError('');setNotice('');};
- async function save(e:FormEvent){e.preventDefault();resetMessages();setBusy(true);try{const result=await accountPatch<Customer>('profile/',form);setProfile(result);setNotice('Profile updated successfully.');}catch(e){setError(e instanceof Error?e.message:'Could not update profile.');}finally{setBusy(false);}}
+ async function save(e:FormEvent){e.preventDefault();resetMessages();setBusy(true);try{const result=await accountPatch<Customer>('profile/',form);setProfile(result);setNotice('Profile updated successfully.');toast.success('Profile updated','Your changes have been saved.');}catch(e){setError(e instanceof Error?e.message:'Could not update profile.');}finally{setBusy(false);}}
  async function changePassword(e:FormEvent){e.preventDefault();resetMessages();setBusy(true);try{await accountApi('change-password/',password,true);clearCustomerToken();nav('/login?reset=1',{replace:true});}catch(e){setError(e instanceof Error?e.message:'Could not update password.');}finally{setBusy(false);}}
- async function logout(){try{await accountApi('logout/',{},true);}finally{clearCustomerToken();nav('/login',{replace:true});}}
+ async function logout(){try{await accountApi('logout/',{},true);}finally{clearCustomerToken();toast.info('Signed out successfully','Your session has ended.');nav('/login',{replace:true});}}
  const input=(name:keyof typeof form,label:string)=><label className="block text-sm font-semibold text-slate-700" key={name}>{label}<input className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100" value={form[name]} onChange={e=>setForm(p=>({...p,[name]:e.target.value}))}/></label>;
  if(loading)return <section className="mx-auto max-w-6xl px-4 py-20 text-slate-600" role="status">Loading your account…</section>;
  if(!profile)return null;

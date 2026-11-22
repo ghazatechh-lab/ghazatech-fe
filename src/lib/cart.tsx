@@ -41,10 +41,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
         const existing = prev.find((i) => i.product.id === product.id);
         if (existing) {
           return prev.map((i) =>
-            i.product.id === product.id ? { ...i, qty: Math.min(i.qty + 1, product.stock || 99) } : i,
+            i.product.id === product.id ? { ...i, qty: Math.min(i.qty + 1, Math.max(0, product.stock)) } : i,
           );
         }
-        return [...prev, { product, qty: 1 }];
+        return product.stock > 0 ? [...prev, { product, qty: 1 }] : prev;
       });
 
     return {

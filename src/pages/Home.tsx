@@ -24,9 +24,9 @@ import {
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-import { fetchBrands, fetchCategories, fetchFeaturedProducts, fetchPublicReviews } from '../lib/api';
+import { fetchCategories, fetchBrands, fetchFeaturedProducts, fetchPublicReviews } from '../lib/api';
 import type { CustomerReview } from '../lib/api';
-import type { Brand, Category, Product } from '../lib/types';
+import type { Category, Product, Brand } from '../lib/types';
 import ProductCard from '../components/ProductCard';
 import { CATEGORY_VISUALS } from '../lib/productVisuals';
 
@@ -47,9 +47,9 @@ const DOCK_CATEGORIES = [
 
 // Trust items for right column
 const TRUST_ITEMS = [
-  { icon: Package,    title: '30,000+ Parts in Stock',          sub: 'Live inventory — Dubai warehouse' },
-  { icon: Truck,      title: 'Fast UAE Delivery',               sub: 'Across all Emirates' },
-  { icon: ShieldCheck, title: 'Warranty Support',               sub: 'Genuine & tested parts' },
+  { icon: Package,    title: 'Laptop Spare Parts',          sub: 'Browse available inventory' },
+  { icon: Truck,      title: 'Delivery Enquiries',               sub: 'Ask us about delivery options' },
+  { icon: ShieldCheck, title: 'Warranty Information',               sub: 'Check individual product coverage' },
   { icon: Headphones, title: 'Expert Assistance',               sub: 'Help to find the right part' },
 ];
 
@@ -69,8 +69,6 @@ const CATEGORY_ICONS: Record<string, typeof Battery> = {
   'Top cover': Layers,
   'Wifi Module': Wifi,
 };
-
-
 
 const WHY_CHOOSE_ITEMS = [
   { icon: ShieldCheck, title: 'Quality Checked', text: 'Tested & reliable parts' },
@@ -98,8 +96,8 @@ function HeroImage() {
 
 export default function Home() {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [brands, setBrands] = useState<Brand[]>([]);
   const [featured, setFeatured] = useState<Product[]>([]);
+  const [brands,setBrands] = useState<Brand[]>([]);
   const [reviews, setReviews] = useState<CustomerReview[]>([]);
   const [query, setQuery] = useState('');
   const heroRef = useRef<HTMLDivElement>(null);
@@ -113,12 +111,7 @@ export default function Home() {
       })
       .catch(() => {});
 
-    fetchBrands()
-      .then((rows) => {
-        if (active) setBrands(rows);
-      })
-      .catch(() => { if (active) setBrands([]); });
-
+    fetchBrands().then(rows=>{if(active)setBrands(rows);}).catch(()=>{});
     fetchFeaturedProducts()
       .then((rows) => {
         if (active) setFeatured(rows.slice(0, 8));

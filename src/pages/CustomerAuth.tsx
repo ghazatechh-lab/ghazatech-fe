@@ -1,11 +1,12 @@
 import {useEffect, useRef, useState, type FormEvent} from 'react';
 import {Link, useNavigate, useSearchParams} from 'react-router-dom';
 import {accountApi, saveCustomerToken, getCustomerToken, type Customer} from '../lib/auth';
+import { useToast } from '../components/ui/ToastProvider';
 import {ArrowRight, CheckCircle2, MailCheck, ShieldCheck, Eye, EyeOff} from 'lucide-react';
 
 type Mode = 'login'|'register'|'verify-email'|'resend-verification'|'forgot-password'|'reset-password'|'account';
 export default function CustomerAuth({mode}: {mode:Mode}) {
- const [params] = useSearchParams(); const navigate=useNavigate();
+ const [params] = useSearchParams(); const navigate=useNavigate(); const toast=useToast();
  const token=params.get('token')||'';
  const [fields,setFields]=useState<Record<string,string>>({email:params.get('email')||''});
  const [error,setError]=useState(''); const [message,setMessage]=useState(''); const [busy,setBusy]=useState(false);
@@ -33,12 +34,13 @@ export default function CustomerAuth({mode}: {mode:Mode}) {
  async function submit(e:FormEvent){
   e.preventDefault();if(busy)return;setBusy(true);setError('');setMessage('');
   try {
+   if(['register','reset-password'].includes(mode) && fields.password !== fields.confirm_password){setError('Passwords do not match.');return;}
    if(mode==='login') {const result=await accountApi<{token:string;customer:Customer}>('login/',fields);saveCustomerToken(result.token);navigate(destination,{replace:true,state:{loginSuccess:true}});}
-   else if(mode==='register') {await accountApi('register/',fields);navigate(`/resend-verification?email=${encodeURIComponent(fields.email)}&sent=1`,{replace:true});}
-   else if(mode==='resend-verification'||mode==='verify-email') {const r=await accountApi<{detail:string}>('resend-verification/',{email:fields.email});setMessage(r.detail);}
-   else if(mode==='forgot-password') {const r=await accountApi<{detail:string}>('forgot-password/',{email:fields.email});setMessage(r.detail);}
-   else if(mode==='reset-password') {await accountApi('reset-password/',{...fields,uid:params.get('uid')||'',token:token});navigate('/login?reset=1',{replace:true});}
-  } catch(e){setError(e instanceof Error?e.message:'Request failed. Please try again.');}
+   else if(mode==='register') {await accountApi('register/',fields);toast.success('Registration submitted','Check your email for verification instructions.');navigate(`/resend-verification?email=${encodeURIComponent(fields.email)}&sent=1`,{replace:true});}
+   else if(mode==='resend-verification'||mode==='verify-email') {const r=await accountApi<{detail:string}>('resend-verification/',{email:fields.email});setMessage(r.detail);toast.info('Check your email',r.detail);}
+   else if(mode==='forgot-password') {const r=await accountApi<{detail:string}>('forgot-password/',{email:fields.email});setMessage(r.detail);toast.info('Check your email',r.detail);}
+   else if(mode==='reset-password') {await accountApi('reset-password/',{...fields,uid:params.get('uid')||'',token:token});toast.success('Password updated','You can now sign in with your new password.');navigate('/login?reset=1',{replace:true});}
+  } catch(e){setError(e instanceof Error?e.message:'Request failed. Please try again.');toast.error('Request unsuccessful',e instanceof Error?e.message:'Please try again.');}
   finally {setBusy(false);}
  }
  const input=(name:string,label:string,type='text',required=true)=> <label key={name} className="block text-sm font-semibold text-slate-700">{label}<div className="relative mt-1.5"><input name={name} type={type==='password'&&showPassword?'text':type} required={required} value={fields[name]||''} onChange={e=>set(name,e.target.value)} autoComplete={name==='email'?'email':name==='first_name'?'given-name':name==='last_name'?'family-name':name==='mobile_number'?'tel':name==='password'?(mode==='login'?'current-password':'new-password'):'off'} className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 pr-12 outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"/>{type==='password'&&<button type="button" aria-label={showPassword?'Hide password':'Show password'} onClick={()=>setShowPassword(x=>!x)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">{showPassword?<EyeOff size={18}/>:<Eye size={18}/>}</button>}</div></label>;

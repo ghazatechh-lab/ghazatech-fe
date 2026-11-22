@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { CartProvider } from './lib/cart';
-import { CheckCircle2, X } from 'lucide-react';
+import './styles/storefront-premium.css';
+import { ToastProvider, useToast } from './components/ui/ToastProvider';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -55,27 +56,9 @@ function PageWrapper() {
 }
 
 function LoginSuccessToast() {
-  const location = useLocation();
-  const [visible, setVisible] = useState(false);
-  useEffect(() => {
-    if (!location.state?.loginSuccess) return;
-    setVisible(true);
-    const timeout = window.setTimeout(() => setVisible(false), 4500);
-    return () => window.clearTimeout(timeout);
-  }, [location.key, location.state]);
-  if (!visible) return null;
-  return (
-    <div role="status" aria-live="polite" className="fixed right-4 top-24 z-[100] w-[min(24rem,calc(100vw-2rem))] rounded-[4px] border border-emerald-300 bg-white p-4 shadow-xl sm:right-6">
-      <div className="flex items-start gap-3">
-        <CheckCircle2 className="mt-0.5 shrink-0 text-emerald-600" size={20} />
-        <div className="min-w-0 flex-1">
-          <p className="font-bold text-[#051329]">Login successful</p>
-          <p className="mt-0.5 text-xs text-[#5A6D88]">Welcome back to GhazaTech portal.</p>
-        </div>
-        <button type="button" onClick={() => setVisible(false)} aria-label="Dismiss notification" className="rounded p-1 text-slate-400 hover:bg-slate-100"><X size={16}/></button>
-      </div>
-    </div>
-  );
+ const location=useLocation(); const toast=useToast();
+ useEffect(()=>{if(location.state?.loginSuccess)toast.success('Welcome back!', 'You have successfully signed in.');},[location.key]);
+ return null;
 }
 
 function SiteShell() {
@@ -83,7 +66,8 @@ function SiteShell() {
   const isAdmin = location.pathname.startsWith('/crm');
 
   useEffect(() => {
-    // Initialize tactile Lenis smooth scrolling with GSAP ticker binding
+    if(isAdmin || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Smooth scrolling is storefront-only and disabled for reduced-motion users.
     const lenis = new Lenis({
       duration: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -102,10 +86,10 @@ function SiteShell() {
       gsap.ticker.remove(rafTicker);
       lenis.destroy();
     };
-  }, []);
+  }, [isAdmin]);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F4F7FB] text-[#051329] antialiased">
+    <div className={`${isAdmin ? '' : 'ghz-storefront'} flex min-h-screen flex-col bg-[#F4F7FB] text-[#051329] antialiased`}>
       {!isAdmin && <Navbar />}
       <LoginSuccessToast />
       <main className="flex-1"><PageWrapper /></main>
@@ -117,9 +101,9 @@ function SiteShell() {
 export default function App() {
   return (
     <BrowserRouter>
-      <CartProvider>
+      <ToastProvider><CartProvider>
         <SiteShell />
-      </CartProvider>
+      </CartProvider></ToastProvider>
     </BrowserRouter>
   );
 }

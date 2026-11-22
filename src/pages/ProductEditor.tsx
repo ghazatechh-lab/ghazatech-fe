@@ -14,7 +14,7 @@ const relationId=(product:RecordValue,key:'category'|'brand')=>{
  return String(typeof candidate==='object'?candidate.id??'':candidate);
 };
 
-export default function ProductEditor({product,token,onClose,onSaved}:{product:RecordValue;token:string;onClose:()=>void;onSaved:()=>Promise<void>}){
+export default function ProductEditor({product,token,onClose,onSaved}:{product:RecordValue;token:string;onClose:()=>void;onSaved:(savedProduct:RecordValue)=>Promise<void>}){
  const edit=Boolean(product.id);
  const [categories,setCategories]=useState<RecordValue[]>([]);
  const [brands,setBrands]=useState<RecordValue[]>([]);
@@ -23,9 +23,36 @@ export default function ProductEditor({product,token,onClose,onSaved}:{product:R
  const [variants,setVariants]=useState<Variant[]>(()=>Array.isArray(product.variants)?product.variants.map((v:RecordValue)=>({sku:String(v.sku||''),name:String(v.name||''),price:String(v.price||''),stock:String(v.stock||'0'),attributes:v.attributes||{},is_active:Boolean(v.is_active??true),id:v.id})):[]);
  const [hasVariants,setHasVariants]=useState(()=>Boolean(product.variant_count||product.variants?.length));
  const [busy,setBusy]=useState(false);const [error,setError]=useState('');
- const [preview,setPreview]=useState<string>(mediaUrl(String(product.image_url||product.image||'')));
+ const [preview,setPreview]=useState<string>(()=>{const url=mediaUrl(String(product.image_url||product.image||''));return url&&product.updated_at?`${url}${url.includes('?')?'&':'?'}v=${encodeURIComponent(String(product.updated_at))}`:url;});
  const [previewFailed,setPreviewFailed]=useState(false);
- useEffect(()=>{const headers={Authorization:`Token ${token}`};Promise.all(['categories','brands'].map(async name=>{const r=await fetch(apiUrl(`/api/crm/${name}/`),{headers});if(!r.ok)throw Error(`Unable to load ${name}`);const data=await r.json();return Array.isArray(data)?data:data.results||[]})).then(([c,b])=>{setCategories(c);setBrands(b)}).catch(e=>setError(String(e)))},[token]);
+ useEffect(()=>{
+  let cancelled=false;
+  const headers={Authorization:`Token ${token}`};
+  // Fetch all pages so previously selected category/brand IDs remain visible.
+  const loadOptions=async(name:'categories'|'brands')=>{
+   let path=`/api/crm/${name}/`;
+   const all:RecordValue[]=[];
+   const seen=new Set<string>();
+   while(path&&!seen.has(path)){
+    seen.add(path);
+    const r=await fetch(apiUrl(path),{headers,cache:'no-store'});
+    if(!r.ok)throw Error(`Unable to load ${name} (${r.status})`);
+    const data=await r.json();
+    if(Array.isArray(data)){all.push(...data);break;}
+    all.push(...(Array.isArray(data.results)?data.results:[]));
+    if(!data.next)break;
+    // Only follow links on this API path, never forward the token to another origin.
+    const next=new URL(data.next,apiUrl(path));
+    if(!next.pathname.startsWith(`/api/crm/${name}/`))throw Error('Invalid CRM pagination URL');
+    path=next.pathname+next.search;
+   }
+   return all;
+  };
+  Promise.all([loadOptions('categories'),loadOptions('brands')])
+   .then(([c,b])=>{if(!cancelled){setCategories(c);setBrands(b)}})
+   .catch(e=>{if(!cancelled)setError(String(e))});
+  return ()=>{cancelled=true};
+ },[token]);
  useEffect(()=>{setCategoryId(relationId(product,'category'));setBrandId(relationId(product,'brand'))},[product.id,product.category,product.brand,product.category_id,product.brand_id]);
  const change=(i:number,key:keyof Variant,value:any)=>setVariants(v=>v.map((item,j)=>i===j?{...item,[key]:value}:item));
  const submit=async(e:FormEvent<HTMLFormElement>)=>{
@@ -46,7 +73,10 @@ export default function ProductEditor({product,token,onClose,onSaved}:{product:R
    // When the switch is off, omit variant_items; existing variants are never deleted implicitly.
    const response=await fetch(apiUrl(`/api/crm/products/${edit?`${product.id}/`:''}`),{method:edit?'PATCH':'POST',headers:{Authorization:`Token ${token}`},body:form});
    if(!response.ok){const message=await response.json().catch(()=>({detail:'Save failed'}));throw Error(message.detail||JSON.stringify(message))}
-   await onSaved();onClose();
+   const savedProduct:RecordValue=await response.json();
+   // Update the row immediately and then refresh the canonical CRM list.
+   await onSaved(savedProduct);
+   onClose();
   }catch(err){setError(String(err))}finally{setBusy(false)}
  };
  return <div className="fixed inset-0 z-50 bg-slate-950/60 flex justify-end" role="dialog" aria-modal="true" aria-label="Product editor">
@@ -58,8 +88,8 @@ export default function ProductEditor({product,token,onClose,onSaved}:{product:R
     <div className="grid gap-4 sm:grid-cols-2"><label className={lbl+" sm:col-span-2"}>Product name *<input name="name" required maxLength={250} defaultValue={String(product.name||'')} placeholder="Example: Acer Aspire Laptop Battery" className={input}/></label>
     <label className={lbl}>Part number / Base SKU *<input name="part_number" required maxLength={100} defaultValue={String(product.part_number||'')} className={input}/></label>
     <label className={lbl}>Condition<select name="condition" defaultValue={String(product.condition||'new')} className={input}>{['new','original','compatible','refurbished'].map(c=><option key={c} value={c}>{c[0].toUpperCase()+c.slice(1)}</option>)}</select></label>
-    <label className={lbl}>Category *<select name="category" required value={categoryId} onChange={e=>setCategoryId(e.target.value)} className={input}><option value="">Select category</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-    <label className={lbl}>Brand *<select name="brand" required value={brandId} onChange={e=>setBrandId(e.target.value)} className={input}><option value="">Select brand</option>{brands.map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
+    <label className={lbl}>Category *<select name="category" required value={categoryId} onChange={e=>setCategoryId(e.target.value)} className={input}><option value="">Select category</option>{categoryId&&!categories.some(c=>String(c.id)===categoryId)&&<option value={categoryId}>Saved category #{categoryId} (unavailable)</option>}{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+    <label className={lbl}>Brand *<select name="brand" required value={brandId} onChange={e=>setBrandId(e.target.value)} className={input}><option value="">Select brand</option>{brandId&&!brands.some(b=>String(b.id)===brandId)&&<option value={brandId}>Saved brand #{brandId} (unavailable)</option>}{brands.map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
     <label className={lbl+" sm:col-span-2"}>Description<textarea name="description" rows={3} defaultValue={String(product.description||'')} placeholder="Product specification and compatibility" className={input}/></label></div>
    </section>
    <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"><h3 className="mb-4 font-bold text-slate-900">Pricing & stock</h3><div className="grid gap-4 sm:grid-cols-3"><label className={lbl}>Base price (AED) *<input name="price" required type="number" min="0" step="0.01" defaultValue={String(product.price??'0')} className={input}/></label><label className={lbl}>Base stock *<input name="stock" required type="number" min="0" step="1" defaultValue={String(product.stock??'0')} className={input}/></label><label className={lbl}>Warranty (months)<input name="warranty_months" type="number" min="0" step="1" defaultValue={String(product.warranty_months??0)} className={input}/></label></div></section>

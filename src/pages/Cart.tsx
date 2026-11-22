@@ -4,11 +4,15 @@ import { ArrowRight, Minus, Plus, ShoppingCart, Trash2, Truck } from 'lucide-rea
 import { useCart } from '../lib/cart';
 import { ProductThumb } from '../components/ProductCard';
 import { checkoutOrder } from '../lib/api';
+import { useToast } from '../components/ui/ToastProvider';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 const FREE_DELIVERY_THRESHOLD = 250;
 
 export default function Cart() {
   const { items, setQty, remove, total, clear } = useCart();
+  const toast=useToast();
+  const [confirmClear,setConfirmClear]=useState(false);
   const [placing, setPlacing] = useState(false);
   const [placed, setPlaced] = useState(false);
   const [orderNo,setOrderNo] = useState('');
@@ -16,7 +20,7 @@ export default function Cart() {
   const [customer,setCustomer]=useState({full_name:'',email:'',mobile:'',address:'',city:'',emir:'Dubai'});
   const delivery = total >= FREE_DELIVERY_THRESHOLD || total === 0 ? 0 : 30;
   const vat=Number((total*.05).toFixed(2));
-  async function placeOrder(event:React.FormEvent){event.preventDefault();setPlacing(true);setOrderError('');try{const order=await checkoutOrder({...customer,items:items.map(i=>({product_id:Number(i.product.id),quantity:i.qty}))});setOrderNo(order.order_number);clear();setPlaced(true);}catch(err){setOrderError(err instanceof Error?err.message:'Unable to place order');}finally{setPlacing(false);}}
+  async function placeOrder(event:React.FormEvent){event.preventDefault();if(placing||!items.length)return;setPlacing(true);setOrderError('');try{const order=await checkoutOrder({...customer,items:items.map(i=>({product_id:Number(i.product.id),quantity:i.qty}))});setOrderNo(order.order_number);clear();setPlaced(true);toast.success('Order placed successfully',`Order ${order.order_number} has been received.`);}catch(err){setOrderError(err instanceof Error?err.message:'Unable to place order');toast.error('Unable to place order',err instanceof Error?err.message:'Please try again. Your cart has been preserved.');}finally{setPlacing(false);}}
 
   if (placed) {
     return (
@@ -81,7 +85,7 @@ export default function Cart() {
                       </div>
                     </div>
                     <button
-                      onClick={() => remove(product.id)}
+                      onClick={() => {remove(product.id);toast.info('Item removed', `${product.name} was removed from your cart.`);}}
                       className="text-ink-400 transition hover:text-red-500"
                       aria-label={`Remove ${product.name}`}
                     >
@@ -99,7 +103,7 @@ export default function Cart() {
                       </button>
                       <span className="w-8 text-center text-sm font-semibold">{qty}</span>
                       <button
-                        onClick={() => setQty(product.id, Math.min(qty + 1, product.stock || 99))}
+                        onClick={() => setQty(product.id, Math.min(qty + 1, Math.max(1,product.stock)))}
                         className="flex h-8 w-8 items-center justify-center text-ink-500 hover:text-ink-900"
                         aria-label="Increase quantity"
                       >
@@ -114,11 +118,12 @@ export default function Cart() {
               </div>
             ))}
             <button
-              onClick={clear}
+              onClick={() => setConfirmClear(true)}
               className="text-sm font-medium text-ink-400 transition hover:text-red-500"
             >
               Clear cart
             </button>
+            <ConfirmDialog open={confirmClear} title="Clear your cart?" description="All items will be removed from your shopping cart." confirmLabel="Clear cart" danger onCancel={()=>setConfirmClear(false)} onConfirm={()=>{clear();setConfirmClear(false);toast.info('Cart cleared','Your shopping cart is now empty.');}} />
           </div>
 
           <aside>

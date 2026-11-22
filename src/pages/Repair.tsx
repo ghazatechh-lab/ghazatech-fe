@@ -1,3 +1,4 @@
+import { useToast } from '../components/ui/ToastProvider';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -30,6 +31,7 @@ const TYPE_ICONS: Record<RepairType, typeof Package> = {
 };
 
 export default function Repair() {
+  const toast=useToast();
   const [type, setType] = useState<RepairType>('repair');
   const [form, setForm] = useState({ customerName: '', phone: '', email: '', laptopModel: '', issue: '' });
   const [submitting, setSubmitting] = useState(false);
@@ -45,7 +47,7 @@ export default function Repair() {
     setSubmitting(true);
     try {
       const ref = await submitRepairRequest({ ...form, requestType: type });
-      setReference(ref);
+      setReference(ref);toast.success('Repair request submitted', `Reference: ${ref}`);
     } catch {
       setError('Something went wrong sending your request. Please try again or contact us.');
     } finally {

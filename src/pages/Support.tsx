@@ -1,3 +1,4 @@
+import { useToast } from '../components/ui/ToastProvider';
 import { useState } from 'react';
 import {
   Headset,
@@ -35,6 +36,7 @@ const SUPPORT_AREAS = [
 const SUBJECTS = ['Product enquiry', 'Order assistance', 'Warranty & returns', 'Repair request', 'Wholesale quotation', 'Other'];
 
 export default function Support() {
+  const toast=useToast();
   const [form, setForm] = useState({ name: '', email: '', phone: '', subject: SUBJECTS[0], message: '' });
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
@@ -51,7 +53,7 @@ export default function Support() {
     setSubmitting(true);
     try {
       await submitSupportTicket(form);
-      setSent(true);
+      setSent(true);toast.success('Message sent successfully','Your support request has been received.');
     } catch {
       setError('Something went wrong sending your message. Please try again or call us.');
     } finally {

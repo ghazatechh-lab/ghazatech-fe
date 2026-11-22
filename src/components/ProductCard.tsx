@@ -1,13 +1,15 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ShoppingCart, PackageX, ArrowRight } from 'lucide-react';
 import type { Product } from '../lib/types';
 import { useCart } from '../lib/cart';
+import { useToast } from './ui/ToastProvider';
 import { getProductVisual } from '../lib/productVisuals';
 
 export function ProductThumb({ product, className = '' }: { product: Product; className?: string }) {
   const visual = getProductVisual(product);
   const [imageFailed, setImageFailed] = useState(false);
+  useEffect(()=>setImageFailed(false),[visual]);
   if (visual && !imageFailed) {
     return (
       <img
@@ -27,24 +29,20 @@ export function ProductThumb({ product, className = '' }: { product: Product; cl
 }
 
 export default function ProductCard({ product }: { product: Product }) {
-  const { add } = useCart();
+  const { add, items } = useCart();
+  const toast=useToast();
   const inStock = product.stock > 0;
   const brand = product.brand?.name ?? (product.name.match(/^(DELL|ACER|ASUS|HP|LENOVO|SONY|APPLE)/i)?.[1] ?? 'Ghaza');
 
   return (
-    <article className="group flex min-h-[380px] flex-col rounded-[3px] border border-[#DCE4EE] bg-white p-3.5 transition-all duration-200 hover:border-[#0B63F6] hover:shadow-sm">
+    <article className="group flex min-h-[380px] flex-col rounded-2xl border border-[#DCE4EE] bg-white p-4 transition-all duration-200 hover:-translate-y-1 hover:border-[#8BAEF0] hover:shadow-[0_18px_40px_-20px_rgba(10,43,87,.24)]">
       {/* Product Image Frame */}
-      <div className="relative flex h-44 w-full items-center justify-center rounded-[2px] border border-[#EAEFF7] bg-[#F4F7FB] p-3">
+      <div className="relative flex h-44 w-full items-center justify-center rounded-xl border border-[#EAEFF7] bg-[#F4F7FB] p-3">
         {/* Brand Tag */}
         <div className="absolute left-2.5 top-2.5 rounded-[2px] bg-[#071936] px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-white">
           {brand}
         </div>
         
-        {/* Warranty Tag */}
-        <div className="absolute right-2.5 top-2.5 rounded-[2px] border border-[#DCE4EE] bg-white px-1.5 py-0.5 font-mono text-[9px] font-semibold text-[#5A6D88]">
-          TESTED
-        </div>
-
         <div className="h-32 w-full flex items-center justify-center">
           <ProductThumb product={product} />
         </div>
@@ -96,7 +94,7 @@ export default function ProductCard({ product }: { product: Product }) {
               Details
             </Link>
             <button
-              onClick={() => add(product)}
+              onClick={() => { const existing=items.find(i=>i.product.id===product.id)?.qty||0; if(existing>=product.stock){toast.warning('Insufficient stock', 'The requested quantity exceeds available stock.');return;} add(product);toast.success('Added to cart', `${product.name} has been added to your cart.`); }}
               disabled={!inStock}
               className="inline-flex h-9 items-center justify-center gap-1 rounded-[3px] bg-[#0B63F6] px-2 text-center text-[11px] font-bold uppercase tracking-wider text-white transition-colors hover:bg-[#0953d4] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
             >

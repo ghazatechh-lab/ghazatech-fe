@@ -15,7 +15,6 @@ import {
   MapPin,
   X,
   UserRound,
-  Heart,
   Send,
   Home as HomeIcon,
   Headphones,
@@ -36,7 +35,6 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
-  const [wishlistCount] = useState(0);
   const { count } = useCart();
   const location = useLocation();
   const navigate = useNavigate();
@@ -152,20 +150,6 @@ export default function Navbar() {
             >
               <UserRound className="h-5 w-5 text-[#2B85FF]" />
               <span className="hidden lg:inline">{isAuth ? 'My Account' : 'Login / Sign up'}</span>
-            </Link>
-
-            <Link
-              to="/shop"
-              className="relative hidden items-center gap-1.5 text-xs font-semibold text-white hover:text-[#2B85FF] transition-colors sm:flex"
-              title="Wishlist"
-            >
-              <Heart className="h-5 w-5 text-[#8A9EB5] hover:text-[#2B85FF] transition-colors" />
-              <span className="hidden xl:inline">Wishlist</span>
-              {wishlistCount > 0 && (
-                <span className="flex h-4 w-4 items-center justify-center rounded-full bg-[#0B63F6] font-mono text-[9px] font-bold text-white">
-                  {wishlistCount}
-                </span>
-              )}
             </Link>
 
             <Link

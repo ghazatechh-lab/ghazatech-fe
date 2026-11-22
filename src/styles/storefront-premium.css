@@ -1,0 +1,14 @@
+/* Customer storefront only: scoped to the public SiteShell. CRM remains unchanged. */
+.ghz-storefront { --ghz-navy:#061329; --ghz-blue:#2563eb; --ghz-line:#e3eaf4; color:#142238; }
+.ghz-storefront .card { border-color:var(--ghz-line); border-radius:20px; box-shadow:0 10px 28px -22px rgba(9,34,75,.25); }
+.ghz-storefront .btn-primary,.ghz-storefront .btn-secondary { border-radius:12px; transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease; }
+.ghz-storefront .btn-primary:hover,.ghz-storefront .btn-secondary:hover { transform:translateY(-1px); }
+.ghz-storefront .input,.ghz-storefront input,.ghz-storefront select,.ghz-storefront textarea { transition:border-color .18s ease,box-shadow .18s ease; }
+.ghz-storefront input:focus-visible,.ghz-storefront select:focus-visible,.ghz-storefront textarea:focus-visible,.ghz-storefront button:focus-visible,.ghz-storefront a:focus-visible { outline:2px solid #2563eb;outline-offset:3px; }
+.ghz-storefront :where(img) { max-width:100%; }
+.ghz-toast { animation:ghz-enter .24s ease-out both; }
+.ghz-dialog { animation:ghz-dialog-enter .21s ease-out both; }
+@keyframes ghz-enter {from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ghz-dialog-enter {from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:640px){.ghz-toast-stack{top:auto;bottom:max(18px,env(safe-area-inset-bottom));}}
+@media(prefers-reduced-motion:reduce){.ghz-storefront *, .ghz-toast,.ghz-dialog{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important;}}
