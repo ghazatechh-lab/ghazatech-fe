@@ -7,22 +7,33 @@ type Variant={id?:number;sku:string;name:string;price:string;stock:string;attrib
 const emptyVariant=():Variant=>({sku:'',name:'',price:'',stock:'0',attributes:{},is_active:true});
 const input='mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100';
 const lbl='block text-sm font-semibold text-slate-700';
+// API detail payloads may expose the relation as an ID, nested object, or *_id.
+const relationId=(product:RecordValue,key:'category'|'brand')=>{
+ const candidate=product[key+'_id']??product[key];
+ if(candidate===null || candidate===undefined)return '';
+ return String(typeof candidate==='object'?candidate.id??'':candidate);
+};
 
 export default function ProductEditor({product,token,onClose,onSaved}:{product:RecordValue;token:string;onClose:()=>void;onSaved:()=>Promise<void>}){
  const edit=Boolean(product.id);
  const [categories,setCategories]=useState<RecordValue[]>([]);
  const [brands,setBrands]=useState<RecordValue[]>([]);
+ const [categoryId,setCategoryId]=useState(()=>relationId(product,'category'));
+ const [brandId,setBrandId]=useState(()=>relationId(product,'brand'));
  const [variants,setVariants]=useState<Variant[]>(()=>Array.isArray(product.variants)?product.variants.map((v:RecordValue)=>({sku:String(v.sku||''),name:String(v.name||''),price:String(v.price||''),stock:String(v.stock||'0'),attributes:v.attributes||{},is_active:Boolean(v.is_active??true),id:v.id})):[]);
  const [hasVariants,setHasVariants]=useState(()=>Boolean(product.variant_count||product.variants?.length));
  const [busy,setBusy]=useState(false);const [error,setError]=useState('');
  const [preview,setPreview]=useState<string>(mediaUrl(String(product.image_url||product.image||'')));
  const [previewFailed,setPreviewFailed]=useState(false);
  useEffect(()=>{const headers={Authorization:`Token ${token}`};Promise.all(['categories','brands'].map(async name=>{const r=await fetch(apiUrl(`/api/crm/${name}/`),{headers});if(!r.ok)throw Error(`Unable to load ${name}`);const data=await r.json();return Array.isArray(data)?data:data.results||[]})).then(([c,b])=>{setCategories(c);setBrands(b)}).catch(e=>setError(String(e)))},[token]);
+ useEffect(()=>{setCategoryId(relationId(product,'category'));setBrandId(relationId(product,'brand'))},[product.id,product.category,product.brand,product.category_id,product.brand_id]);
  const change=(i:number,key:keyof Variant,value:any)=>setVariants(v=>v.map((item,j)=>i===j?{...item,[key]:value}:item));
  const submit=async(e:FormEvent<HTMLFormElement>)=>{
   e.preventDefault();setError('');setBusy(true);
   try{
    const form=new FormData(e.currentTarget);
+   form.set('category',categoryId);
+   form.set('brand',brandId);
    if(!(form.get('image') instanceof File) || !(form.get('image') as File).size)form.delete('image');
    for(const key of ['is_active','is_featured'])form.set(key,form.has(key)?'true':'false');
    if(hasVariants){
@@ -47,8 +58,8 @@ export default function ProductEditor({product,token,onClose,onSaved}:{product:R
     <div className="grid gap-4 sm:grid-cols-2"><label className={lbl+" sm:col-span-2"}>Product name *<input name="name" required maxLength={250} defaultValue={String(product.name||'')} placeholder="Example: Acer Aspire Laptop Battery" className={input}/></label>
     <label className={lbl}>Part number / Base SKU *<input name="part_number" required maxLength={100} defaultValue={String(product.part_number||'')} className={input}/></label>
     <label className={lbl}>Condition<select name="condition" defaultValue={String(product.condition||'new')} className={input}>{['new','original','compatible','refurbished'].map(c=><option key={c} value={c}>{c[0].toUpperCase()+c.slice(1)}</option>)}</select></label>
-    <label className={lbl}>Category *<select name="category" required defaultValue={String(product.category||'')} className={input}><option value="">Select category</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
-    <label className={lbl}>Brand *<select name="brand" required defaultValue={String(product.brand||'')} className={input}><option value="">Select brand</option>{brands.map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
+    <label className={lbl}>Category *<select name="category" required value={categoryId} onChange={e=>setCategoryId(e.target.value)} className={input}><option value="">Select category</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label>
+    <label className={lbl}>Brand *<select name="brand" required value={brandId} onChange={e=>setBrandId(e.target.value)} className={input}><option value="">Select brand</option>{brands.map(b=><option key={b.id} value={b.id}>{b.name}</option>)}</select></label>
     <label className={lbl+" sm:col-span-2"}>Description<textarea name="description" rows={3} defaultValue={String(product.description||'')} placeholder="Product specification and compatibility" className={input}/></label></div>
    </section>
    <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm"><h3 className="mb-4 font-bold text-slate-900">Pricing & stock</h3><div className="grid gap-4 sm:grid-cols-3"><label className={lbl}>Base price (AED) *<input name="price" required type="number" min="0" step="0.01" defaultValue={String(product.price??'0')} className={input}/></label><label className={lbl}>Base stock *<input name="stock" required type="number" min="0" step="1" defaultValue={String(product.stock??'0')} className={input}/></label><label className={lbl}>Warranty (months)<input name="warranty_months" type="number" min="0" step="1" defaultValue={String(product.warranty_months??0)} className={input}/></label></div></section>
