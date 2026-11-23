@@ -29,6 +29,7 @@ import type { CustomerReview } from '../lib/api';
 import type { Category, Product, Brand } from '../lib/types';
 import ProductCard from '../components/ProductCard';
 import { CATEGORY_VISUALS } from '../lib/productVisuals';
+import GoogleReviewsCarousel from '../components/GoogleReviewsCarousel';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -517,6 +518,9 @@ export default function Home() {
           </div>
         </section>
       )}
+
+      {/* Curated customer Google reviews — snapshot captured in recording; not live API data. */}
+      <GoogleReviewsCarousel />
 
       {/* WHY CHOOSE GHAZA COMPUTER */}
       <section className="container-x py-12">
