@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Phone, Mail, MessageCircle, ShieldCheck, CheckCircle2 } from 'lucide-react';
+import { MapPin, Phone, Mail, MessageCircle, ShieldCheck, Star } from 'lucide-react';
+import { GOOGLE_REVIEWS_URL, GOOGLE_WRITE_REVIEW_URL } from '../lib/googleReviews';
 
 const SHOP_LINKS = [
   { to: '/shop', label: 'All Products' },
@@ -109,6 +110,18 @@ export default function Footer() {
               <a href="mailto:info@ghazacomp.com" className="flex items-center gap-2.5 hover:text-white transition">
                 <Mail className="h-4 w-4 shrink-0 text-[#2B85FF]" />
                 <span>info@ghazacomp.com</span>
+              </a>
+            </li>
+            <li className="flex flex-col gap-2 border-t border-white/10 pt-3">
+              <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-[#B8D8FF] transition hover:text-white">
+                <Star className="h-4 w-4 text-[#2B85FF]" aria-hidden="true" />
+                Read our Google reviews
+              </a>
+              <a href={GOOGLE_WRITE_REVIEW_URL} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-[#B8D8FF] transition hover:text-white">
+                <Star className="h-4 w-4 text-[#2B85FF]" aria-hidden="true" />
+                Leave a Google review
               </a>
             </li>
             <li className="pt-1 flex items-center gap-1.5 text-[11px] text-[#2B85FF]">
