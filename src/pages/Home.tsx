@@ -278,7 +278,7 @@ export default function Home() {
 
           {categories.length > 0 ? (
             <div className="ghz-category-grid grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
-              {categories.map((category) => {
+              {categories.slice(0, 6).map((category) => {
                 const normalizedName = category.name.trim().toLowerCase();
                 const visual = DOCK_CATEGORIES.find((item) => item.query && normalizedName === item.query.toLowerCase())
                   || DOCK_CATEGORIES.find((item) => item.query && normalizedName.includes(item.query.toLowerCase()))
