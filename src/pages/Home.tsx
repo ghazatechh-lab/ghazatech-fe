@@ -422,7 +422,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-5 lg:grid-cols-10">
-            {brands.map((brand) => (
+            {brands.slice(0, 10).map((brand) => (
               <Link
                 key={brand.name}
                 to={`/shop?brand=${encodeURIComponent(brand.name)}`}
@@ -431,12 +431,6 @@ export default function Home() {
                 {brand.name}
               </Link>
             ))}
-            <Link
-              to="/shop"
-              className="flex h-14 items-center justify-center rounded-[3px] border border-[#0B63F6] bg-[#0B63F6]/5 px-2 text-center font-mono text-[11px] font-bold uppercase tracking-wider text-[#0B63F6] hover:bg-[#0B63F6] hover:text-white transition-all"
-            >
-              All Brands →
-            </Link>
           </div>
         </div>
       </section>
