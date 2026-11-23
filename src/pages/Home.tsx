@@ -29,7 +29,7 @@ import type { CustomerReview } from '../lib/api';
 import type { Category, Product, Brand } from '../lib/types';
 import ProductCard from '../components/ProductCard';
 import { CATEGORY_VISUALS } from '../lib/productVisuals';
-import { GOOGLE_REVIEWS_URL, GOOGLE_WRITE_REVIEW_URL } from '../lib/googleReviews';
+import GoogleReviewsCarousel from '../components/GoogleReviewsCarousel';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -519,36 +519,8 @@ export default function Home() {
         </section>
       )}
 
-      {/* GOOGLE BUSINESS REVIEWS: links to the verified Sharjah business listing.
-          Existing on-site reviews above remain independent of Google reviews. */}
-      <section className="border-y border-[#DCE4EE] bg-[#F4F8FF] py-9 sm:py-11" aria-labelledby="google-reviews-heading">
-        <div className="container-x flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="max-w-xl">
-            <div className="flex items-center gap-2 text-[#0B63F6]">
-              <Star className="h-4 w-4" aria-hidden="true" />
-              <span className="font-mono text-[11px] font-bold uppercase tracking-[0.16em]">Google Business Reviews</span>
-            </div>
-            <h2 id="google-reviews-heading" className="mt-2 font-display text-xl font-extrabold text-[#051329] sm:text-2xl">
-              See what customers say about Ghaza Computer
-            </h2>
-            <p className="mt-2 text-sm leading-relaxed text-[#5A6D88]">
-              Read independent feedback or share your experience on our Google Maps business profile in Sharjah.
-            </p>
-          </div>
-          <div className="flex w-full flex-wrap gap-3 sm:w-auto sm:shrink-0">
-            <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener noreferrer"
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg border border-[#BCD3F5] bg-white px-5 py-2.5 text-sm font-semibold text-[#0B63F6] transition hover:border-[#0B63F6] hover:bg-[#EAF2FF] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B63F6] sm:flex-none"
-              aria-label="Read Ghaza Computer reviews on Google Maps (opens in a new tab)">
-              <Star className="h-4 w-4" aria-hidden="true" /> Read Google reviews
-            </a>
-            <a href={GOOGLE_WRITE_REVIEW_URL} target="_blank" rel="noopener noreferrer"
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-[#0B63F6] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#084FCA] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0B63F6] sm:flex-none"
-              aria-label="Write a review for Ghaza Computer on Google (opens in a new tab)">
-              Write a review <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </a>
-          </div>
-        </div>
-      </section>
+      {/* Selected customer reviews supplied by the business; live Places integration comes later. */}
+      <GoogleReviewsCarousel />
 
       {/* WHY CHOOSE GHAZA COMPUTER */}
       <section className="container-x py-12">
