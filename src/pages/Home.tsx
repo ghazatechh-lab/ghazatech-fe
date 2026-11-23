@@ -29,7 +29,6 @@ import type { CustomerReview } from '../lib/api';
 import type { Category, Product, Brand } from '../lib/types';
 import ProductCard from '../components/ProductCard';
 import { CATEGORY_VISUALS } from '../lib/productVisuals';
-import GoogleReviewsCarousel from '../components/GoogleReviewsCarousel';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -152,22 +151,22 @@ export default function Home() {
   };
 
   return (
-    <div ref={heroRef} className="min-h-screen bg-[#F4F7FB]">
+    <div ref={heroRef} className="ghz-home min-h-screen bg-[#F4F7FB]">
       {/* ======================================================== */}
       {/* BAND 1: DEEP MIDNIGHT NAVY HERO (#051329)               */}
       {/* ======================================================== */}
       <section className="relative border-b border-[#1A2B49] bg-[#051329] text-white overflow-hidden">
-        <div className="container-x relative z-10 pt-8 pb-24 sm:pt-10 sm:pb-28 lg:pt-12 lg:pb-36">
+        <div className="container-x ghz-hero-inner relative z-10">
 
           {/*
             RESPONSIVE LAYOUT
             ─ Mobile  (<lg) : stacked column  → text | stage | trust-grid
             ─ Desktop (≥lg) : 3-col side-by-side → [text | stage | trust-stack]
           */}
-          <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[380px_1fr_250px] xl:grid-cols-[420px_1fr_270px] lg:items-center lg:gap-6">
+          <div className="ghz-hero-grid flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,1.04fr)_minmax(0,1.2fr)_minmax(220px,.7fr)] lg:items-center lg:gap-6">
 
             {/* ── COL 1: Eyebrow + Headline + Subtitle + Search + CTAs ── */}
-            <div className="gsap-hero-anim flex flex-col space-y-5">
+            <div className="ghz-hero-copy gsap-hero-anim flex flex-col space-y-5">
               {/* Eyebrow */}
               <div className="inline-flex w-fit items-center gap-2 rounded-[2px] border border-[#2B85FF]/40 bg-[#0B63F6]/15 px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-[0.2em] text-[#7DD3FC]">
                 <Cpu className="h-3.5 w-3.5 text-[#2B85FF]" />
@@ -222,12 +221,12 @@ export default function Home() {
 
             {/* ── COL 2 (CENTER): Static hero image seamlessly dissolved into background ── */}
             {/* On mobile: full width, capped. On desktop: fills the 1fr column. */}
-            <div className="w-full max-w-[580px] mx-auto lg:max-w-none">
+            <div className="ghz-hero-image w-full max-w-[580px] mx-auto lg:max-w-none">
               <HeroImage />
             </div>
 
             {/* ── COL 3 (RIGHT): Trust card with glowing HUD styling ── */}
-            <div className="gsap-hero-anim w-full">
+            <div className="ghz-hero-trust gsap-hero-anim w-full">
               <div className="rounded-[16px] border border-[#2B85FF]/35 bg-[#071936]/85 p-5 shadow-[0_0_30px_rgba(11,99,246,0.18)] backdrop-blur-md">
                 <div className="flex flex-col gap-5">
                   {TRUST_ITEMS.map((item) => {
@@ -277,7 +276,7 @@ export default function Home() {
           </div>
 
           {categories.length > 0 ? (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
+            <div className="ghz-category-grid grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 lg:gap-4">
               {categories.map((category) => {
                 const normalizedName = category.name.trim().toLowerCase();
                 const visual = DOCK_CATEGORIES.find((item) => item.query && normalizedName === item.query.toLowerCase())
@@ -518,9 +517,6 @@ export default function Home() {
           </div>
         </section>
       )}
-
-      {/* Selected customer reviews supplied by the business; live Places integration comes later. */}
-      <GoogleReviewsCarousel />
 
       {/* WHY CHOOSE GHAZA COMPUTER */}
       <section className="container-x py-12">

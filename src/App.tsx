@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { CartProvider } from './lib/cart';
 import './styles/storefront-premium.css';
+import './styles/storefront-fluid.css';
 import { ToastProvider, useToast } from './components/ui/ToastProvider';
 import Lenis from 'lenis';
 import gsap from 'gsap';
